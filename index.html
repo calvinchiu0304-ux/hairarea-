@@ -86,7 +86,6 @@
   <!-- 頂部 Header & 搜尋篩選列 -->
   <header class="fixed top-0 left-0 right-0 z-20 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 p-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col gap-2">
-      <!-- 上欄：Logo、自薦按鈕、主題切換 -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-lg shadow-md">
@@ -100,25 +99,21 @@
         </div>
         
         <div class="flex items-center gap-2">
-          <!-- 自薦加入地圖按鈕 -->
           <button onclick="showApplyModal()" class="text-xs bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
             <i class="fa-solid fa-user-plus"></i> 自薦加入
           </button>
 
-          <!-- 地圖深/淺色切換開關 -->
           <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
             <i class="fa-solid fa-sun" id="themeIcon"></i>
             <span id="themeText" class="hidden sm:inline">淺色</span>
           </button>
 
-          <!-- 管理員入口測試 -->
           <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition flex items-center gap-1 pl-1">
             <i class="fa-solid fa-lock"></i>
           </a>
         </div>
       </div>
 
-      <!-- 下欄：地區與風格快捷篩選按鈕 -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
         <select id="districtFilter" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-teal-500">
           <option value="ALL">📍 全部地區</option>
@@ -169,7 +164,7 @@
     </button>
   </div>
 
-  <!-- 浮動控制區域（地圖/列表切換） -->
+  <!-- 浮動控制區域 -->
   <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
     <button id="viewToggleBtn" onclick="toggleView()" class="bg-zinc-900/95 border border-teal-500/50 text-teal-400 font-medium text-sm px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-zinc-800 transition active:scale-95 backdrop-blur-md">
       <i class="fa-solid fa-list-ul" id="toggleIcon"></i>
@@ -240,10 +235,20 @@
             <input type="number" id="applyPrice" required placeholder="280" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
           </div>
         </div>
+
+        <!-- 標準化風格標籤多選區塊 -->
         <div>
-          <label class="block text-zinc-400 mb-1">擅長風格標籤 (用逗號隔開) *</label>
-          <input type="text" id="applyTags" required placeholder="例如: 日系電髮, 韓系剪裁, 男士理髮" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+          <label class="block text-zinc-400 mb-1.5">擅長風格標籤（請勾選符合的項目）*</label>
+          <div class="flex flex-wrap gap-1.5 p-2 bg-zinc-800/60 border border-zinc-700 rounded-lg" id="standardTagContainer">
+            <button type="button" onclick="toggleSelectTag(this)" data-tag="日系電髮" class="select-tag-btn px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs transition">#日系電髮</button>
+            <button type="button" onclick="toggleSelectTag(this)" data-tag="Barber漸變" class="select-tag-btn px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs transition">#Barber漸變</button>
+            <button type="button" onclick="toggleSelectTag(this)" data-tag="單剪速剪" class="select-tag-btn px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs transition">#單剪速剪</button>
+            <button type="button" onclick="toggleSelectTag(this)" data-tag="韓系剪裁" class="select-tag-btn px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs transition">#韓系剪裁</button>
+            <button type="button" onclick="toggleSelectTag(this)" data-tag="漂染專門店" class="select-tag-btn px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs transition">#漂染專門店</button>
+            <button type="button" onclick="toggleSelectTag(this)" data-tag="男士理髮" class="select-tag-btn px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs transition">#男士理髮</button>
+          </div>
         </div>
+
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-zinc-400 mb-1">Instagram 帳號</label>
@@ -255,7 +260,7 @@
           </div>
         </div>
 
-        <!-- 互動選點小地圖區塊 -->
+        <!-- 互動選點小地圖與地址文字確認區塊 -->
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="text-zinc-400">📍 點擊下方地圖設定店舖位置 *</label>
@@ -265,15 +270,15 @@
           </div>
           <div id="miniMap" class="w-full h-32 rounded-xl border border-zinc-700 z-0 mb-2"></div>
           
-          <!-- 新增：可修改/查看的地址文字顯示與搜尋欄 -->
           <div>
             <label class="block text-zinc-400 mb-1">店舖詳細地址（可檢視或手動修改確認）</label>
             <div class="flex gap-2">
-              <input type="text" id="applyAddress" placeholder="點擊地圖自動帶出地址，或手動修改..." class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+              <input type="text" id="applyAddress" placeholder="點擊地圖自動帶出，可手動補充（例：XX大廈 3 樓 B 室）" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
               <button type="button" onclick="searchAddressOnMap()" class="bg-zinc-700 hover:bg-zinc-600 text-zinc-200 px-3 py-2 rounded-lg transition shrink-0">
                 <i class="fa-solid fa-magnifying-glass"></i> 定位地址
               </button>
             </div>
+            <p class="text-[10px] text-zinc-500 mt-1">💡 提示：點擊地圖會自動填入大致地址，請自行手動加上大廈名稱、樓層或室號，方便管理員審核。</p>
           </div>
         </div>
 
@@ -608,6 +613,14 @@
     function showHelpModal() { document.getElementById('helpModal').classList.remove('hidden'); }
     function closeHelpModal() { document.getElementById('helpModal').classList.add('hidden'); }
 
+    /* 點擊切換標準化標籤選取狀態 */
+    function toggleSelectTag(btn) {
+      btn.classList.toggle('bg-teal-500/25');
+      btn.classList.toggle('border-teal-500');
+      btn.classList.toggle('text-teal-300');
+      btn.classList.toggle('selected');
+    }
+
     function showApplyModal() {
       document.getElementById('applyModal').classList.remove('hidden');
       
@@ -620,7 +633,6 @@
 
           miniMarker = L.marker([22.3175, 114.1694], { draggable: true }).addTo(miniMap);
 
-          // 點擊地圖更新經緯度與反查地址
           miniMap.on('click', function(e) {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
@@ -629,14 +641,12 @@
             fetchAddressFromCoords(lat, lng);
           });
 
-          // 拖曳標記更新經緯度與反查地址
           miniMarker.on('dragend', function(e) {
             const pos = miniMarker.getLatLng();
             updateCoordValues(pos.lat, pos.lng);
             fetchAddressFromCoords(pos.lat, pos.lng);
           });
 
-          // 初始抓取一次預設位置地址
           fetchAddressFromCoords(22.3175, 114.1694);
         } else {
           miniMap.invalidateSize();
@@ -651,7 +661,6 @@
       document.getElementById('applyLng').value = lng.toFixed(4);
     }
 
-    /* 反向地理編碼：經緯度轉文字地址 */
     async function fetchAddressFromCoords(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh-HK`);
@@ -664,7 +673,6 @@
       }
     }
 
-    /* 正向地理編碼：文字地址搜尋並移動地圖 Pin */
     async function searchAddressOnMap() {
       const query = document.getElementById('applyAddress').value.trim();
       if (!query) {
@@ -689,7 +697,6 @@
       }
     }
 
-    /* 一鍵 GPS 定位 */
     function getGpsLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -713,7 +720,6 @@
       }
     }
 
-    /* 提交自薦申請 */
     async function submitApplication(event) {
       event.preventDefault();
       
@@ -722,8 +728,15 @@
       const district = document.getElementById('applyDistrict').value;
       const shop_name = document.getElementById('applyShop').value.trim();
       const price_starting = parseFloat(document.getElementById('applyPrice').value) || 250;
-      const tagsInput = document.getElementById('applyTags').value;
-      const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+      
+      const selectedTagBtns = document.querySelectorAll('.select-tag-btn.selected');
+      const tags = Array.from(selectedTagBtns).map(btn => btn.getAttribute('data-tag'));
+
+      if (tags.length === 0) {
+        alert('請至少勾選一個擅長風格標籤！');
+        return;
+      }
+
       const ig_handle = document.getElementById('applyIg').value.trim();
       const whatsapp = document.getElementById('applyWa').value.trim();
       const lat = parseFloat(document.getElementById('applyLat').value);
@@ -753,6 +766,7 @@
         } else {
           alert('🎉 申請提交成功！管理員審核通過後將會顯示在地圖上。');
           document.getElementById('applyForm').reset();
+          document.querySelectorAll('.select-tag-btn').forEach(b => b.classList.remove('bg-teal-500/25', 'border-teal-500', 'text-teal-300', 'selected'));
           closeApplyModal();
         }
       } catch (err) {
