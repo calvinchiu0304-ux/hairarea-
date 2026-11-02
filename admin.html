@@ -3,40 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>香港髮型地圖 | 管理員審核後台</title>
+  <title>管理員後台 | 香港髮型地圖</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans p-4">
-  <!-- 登入密碼遮罩 Modal -->
-  <div id="loginModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
-      <div class="w-12 h-12 bg-teal-500/20 text-teal-400 rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
-        <i class="fa-solid fa-lock"></i>
-      </div>
-      <h2 class="font-bold text-lg mb-1">管理員登入</h2>
-      <p class="text-xs text-zinc-400 mb-4">請輸入後台管理密碼以繼續</p>
-      <input type="password" id="adminPassword" placeholder="輸入管理員密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-center text-white mb-3 focus:outline-none focus:border-teal-500">
-      <button onclick="checkAdminPassword()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2 rounded-xl text-xs transition">登入後台</button>
+
+  <!-- 登入保護區 -->
+  <div id="loginSection" class="max-w-md mx-auto mt-24 bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl">
+    <h2 class="text-lg font-bold text-teal-400 mb-4 flex items-center gap-2"><i class="fa-solid fa-lock"></i> 管理員登入</h2>
+    <div class="space-y-3 text-xs">
+      <input type="password" id="adminPwd" placeholder="請輸入管理員密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+      <button onclick="checkAdminLogin()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl transition">登入後台</button>
+      <a href="index.html" class="block text-center text-zinc-400 hover:text-white mt-2">返回前台地圖</a>
     </div>
   </div>
 
-  <!-- 後台主畫面 -->
-  <div id="adminContent" class="max-w-4xl mx-auto hidden">
-    <div class="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800">
-      <div class="flex items-center gap-2">
-        <h1 class="font-bold text-lg text-teal-400"><i class="fa-solid fa-shield-halved"></i> 髮型師審核後台</h1>
+  <!-- 後台主面板 (登入後顯示) -->
+  <div id="adminPanel" class="hidden max-w-5xl mx-auto space-y-6 mt-6">
+    <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow-lg">
+      <h1 class="font-bold text-base text-teal-400 flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> 香港髮型地圖 - 管理與私密資源後台</h1>
+      <a href="index.html" class="text-xs bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg border border-zinc-700">返回前台</a>
+    </div>
+
+    <!-- 頁籤切換 -->
+    <div class="flex gap-2 border-b border-zinc-800 pb-2">
+      <button onclick="switchAdminTab('stylists')" id="tabStylists" class="px-4 py-2 rounded-xl text-xs font-bold bg-teal-500 text-zinc-950 transition">✂️ 髮型師審核與管理</button>
+      <button onclick="switchAdminTab('models')" id="tabModels" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition">📸 私密模特兒資源庫</button>
+    </div>
+
+    <!-- 區塊 1：髮型師列表 -->
+    <div id="sectionStylists" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <h2 class="font-bold text-sm text-teal-400">所有已收錄與待審核髮型師</h2>
+      <div id="adminStylistList" class="space-y-3 text-xs"></div>
+    </div>
+
+    <!-- 區塊 2：私密模特兒資源庫 (只有你看得到) -->
+    <div id="sectionModels" class="hidden bg-zinc-900 border border-pink-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="font-bold text-sm text-pink-400 flex items-center gap-2"><i class="fa-solid fa-camera-retro"></i> 素人模特兒私密資源庫</h2>
+          <p class="text-[11px] text-zinc-400">此區資料全網私密，僅限管理員查看，可用於與髮型師對接拍片合作。</p>
+        </div>
       </div>
-      <a href="index.html" class="text-xs text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg">返回公開地圖</a>
-    </div>
-
-    <div class="mb-4">
-      <h2 class="text-sm font-bold text-zinc-300 mb-2">待審核申請清單</h2>
-    </div>
-
-    <div id="pendingList" class="space-y-3">
-      <!-- 動態載入 -->
+      <div id="adminModelList" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"></div>
     </div>
   </div>
 
@@ -45,97 +56,88 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Znl3ZWl5cG5ob2RjZmZ1c3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjU0ODAsImV4cCI6MjEwODg0MTQ4MH0.4IGm5K2N9RDr_RAO6STivC9E6_HxlLyMg6tCzTS6zEg';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function checkAdminPassword() {
-      const pwd = document.getElementById('adminPassword').value;
+    function checkAdminLogin() {
+      const pwd = document.getElementById('adminPwd').value.trim();
       if (pwd === 'admin888') {
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('adminContent').classList.remove('hidden');
-        loadPendingStylists();
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        loadAdminData();
       } else {
-        alert('密碼錯誤！');
+        alert('❌ 管理員密碼錯誤！');
       }
     }
 
-    async function loadPendingStylists() {
-      const container = document.getElementById('pendingList');
-      container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-8">載入中...</p>';
+    function switchAdminTab(tab) {
+      const sSec = document.getElementById('sectionStylists');
+      const mSec = document.getElementById('sectionModels');
+      const tS = document.getElementById('tabStylists');
+      const tM = document.getElementById('tabModels');
+      if (tab === 'stylists') {
+        sSec.classList.remove('hidden'); mSec.classList.add('hidden');
+        tS.className = "px-4 py-2 rounded-xl text-xs font-bold bg-teal-500 text-zinc-950 transition";
+        tM.className = "px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition";
+      } else {
+        sSec.classList.add('hidden'); mSec.classList.remove('hidden');
+        tM.className = "px-4 py-2 rounded-xl text-xs font-bold bg-pink-500 text-zinc-950 transition";
+        tS.className = "px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition";
+        loadModelsData();
+      }
+    }
 
-      try {
-        // 直接從 stylists 表抓取 status 為 pending 的資料
-        const { data, error } = await supabaseClient
-          .from('stylists')
-          .select('*')
-          .eq('status', 'pending');
+    async function loadAdminData() {
+      const container = document.getElementById('adminStylistList');
+      const { data } = await supabaseClient.from('stylists').select('*').order('id', { ascending: false });
+      if (!data || data.length === 0) { container.innerHTML = `<p class="text-zinc-500">暫無資料</p>`; return; }
+      container.innerHTML = data.map(s => `
+        <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex items-center justify-between">
+          <div>
+            <span class="font-bold text-zinc-100">${s.name}</span> <span class="text-teal-400">(${s.district} · ${s.shop_name})</span>
+            <p class="text-zinc-400 text-[11px]">狀態: ${s.status || 'approved'} | 價格: $${s.price_starting} | WA: ${s.whatsapp}</p>
+          </div>
+          <button onclick="deleteStylist(${s.id})" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg font-bold">刪除</button>
+        </div>
+      `).join('');
+    }
 
-        if (error) {
-          container.innerHTML = `<p class="text-xs text-red-400 text-center py-8">讀取失敗: ${error.message}</p>`;
-          return;
-        }
-
-        if (!data || data.length === 0) {
-          container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-8">🎉 目前沒有待審核的申請</p>';
-          return;
-        }
-
-        container.innerHTML = data.map(item => `
-          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <div class="flex items-center gap-2 mb-1">
-                <span class="font-bold text-base text-white">${item.name}</span>
-                <span class="text-xs bg-teal-500/20 text-teal-400 px-2 py-0.5 rounded">${item.gender === 'F' ? '女髮型師' : '男髮型師'}</span>
-                <span class="text-xs text-zinc-400">@ ${item.shop_name} (${item.district})</span>
+    async function loadModelsData() {
+      const container = document.getElementById('adminModelList');
+      const { data } = await supabaseClient.from('hair_models').select('*').order('created_at', { ascending: false });
+      if (!data || data.length === 0) { container.innerHTML = `<p class="text-zinc-500">目前私密庫中尚無模特兒登記</p>`; return; }
+      container.innerHTML = data.map(m => {
+        const cleanWa = String(m.whatsapp || '').replace(/\D/g, '');
+        const waLink = `https://api.whatsapp.com/send?phone=${cleanWa}&text=${encodeURIComponent(`你好 ${m.model_name}！我在【香港髮型地圖】看到你登記的模特兒資料（${m.hair_status}），想邀請你參與拍攝...`)}`;
+        return `
+          <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-4 space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-bold text-base text-pink-400">${m.model_name} 📍 ${m.district}</h3>
+                <p class="text-zinc-300 mt-1">💇‍♀️ <strong>頭髮現狀：</strong> ${m.hair_status}</p>
+                <p class="text-zinc-400 text-[11px] mt-0.5">📞 <strong>電話：</strong> ${m.whatsapp}</p>
               </div>
-              <p class="text-xs text-zinc-400 mb-1">起步價: HK$ ${item.price_starting} | WhatsApp: ${item.whatsapp} | IG: ${item.ig_handle || '無'}</p>
-              <p class="text-xs text-zinc-500">標籤: ${(item.tags || []).join(', ')}</p>
+              <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1 shrink-0">
+                <i class="fa-brands fa-whatsapp"></i> 聯繫Model
+              </a>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-              <button onclick="approveStylist(${item.id})" class="flex-1 sm:flex-initial bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold px-4 py-2 rounded-xl text-xs transition">批准上線</button>
-              <button onclick="rejectStylist(${item.id})" class="flex-1 sm:flex-initial bg-zinc-800 hover:bg-zinc-700 text-red-400 font-bold px-4 py-2 rounded-xl text-xs transition">拒絕刪除</button>
+            ${m.photo_base64 ? `<div class="mt-2"><span class="text-[10px] text-zinc-500 block mb-1">頭髮/素人相片預覽：</span><img src="${m.photo_base64}" class="w-32 h-32 object-cover rounded-lg border border-zinc-700 cursor-pointer hover:scale-105 transition" onclick="window.open(this.src)" title="點擊放大圖片"></div>` : ''}
+            <div class="flex justify-end pt-2 border-t border-zinc-900">
+              <button onclick="deleteModel(${m.id})" class="text-red-400 hover:text-red-300 text-[11px] underline">刪除此筆記錄</button>
             </div>
           </div>
-        `).join('');
-      } catch (err) {
-        container.innerHTML = `<p class="text-xs text-red-400 text-center py-8">發生異常錯誤</p>`;
+        `;
+      }).join('');
+    }
+
+    async function deleteStylist(id) {
+      if (confirm('確定要刪除這位髮型師嗎？')) {
+        await supabaseClient.from('stylists').delete().eq('id', id);
+        loadAdminData();
       }
     }
 
-    async function approveStylist(id) {
-      try {
-        // 核心改變：只需要將該 ID 的 status 更新為 approved 即可！
-        const { error } = await supabaseClient
-          .from('stylists')
-          .update({ status: 'approved' })
-          .eq('id', id);
-
-        if (error) {
-          alert('❌ 批准上線失敗: ' + error.message);
-          return;
-        }
-
-        alert('🎉 審核成功！該髮型師已正式上線並在地圖上顯示。');
-        await loadPendingStylists();
-
-      } catch (err) {
-        alert('❌ 審核過程發生錯誤: ' + err.message);
-      }
-    }
-
-    async function rejectStylist(id) {
-      if (!confirm('確定要拒絕並刪除這筆申請嗎？')) return;
-      try {
-        const { error } = await supabaseClient
-          .from('stylists')
-          .delete()
-          .eq('id', id);
-
-        if (error) {
-          alert('❌ 刪除失敗: ' + error.message);
-        } else {
-          alert('已成功拒絕並刪除該申請。');
-          await loadPendingStylists();
-        }
-      } catch (err) {
-        alert('❌ 操作失敗');
+    async function deleteModel(id) {
+      if (confirm('確定要刪除這筆模特兒記錄嗎？')) {
+        await supabaseClient.from('hair_models').delete().eq('id', id);
+        loadModelsData();
       }
     }
   </script>
