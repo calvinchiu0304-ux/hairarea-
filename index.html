@@ -728,9 +728,42 @@
 
     // 🔍 帶有詳細報錯機率攔截的提交函數
     async function submitApplication(e) {
-      e.preventDefault();
-      const tags = Array.from(document.querySelectorAll('.select-tag-btn.selected')).map(b => b.getAttribute('data-tag'));
-      if (tags.length === 0) { alert('請至少勾選一個風格標籤！'); return; }
+  e.preventDefault();
+  // 收集勾選的標籤並轉為純文字（用逗號分隔）以完美適應資料庫
+  const tagsArr = Array.from(document.querySelectorAll('.select-tag-btn.selected')).map(b => b.getAttribute('data-tag'));
+  if (tagsArr.length === 0) { alert('請至少勾選一個風格標籤！'); return; }
+  
+  const payload = {
+    name: document.getElementById('applyName').value.trim(),
+    gender: document.getElementById('applyGender').value,
+    shop_name: document.getElementById('applyShop').value.trim(),
+    district: document.getElementById('applyDistrict').value,
+    price_starting: parseFloat(document.getElementById('applyPrice').value) || 250,
+    tags: tagsArr.join(','), // 轉為純文字儲存，避免陣列報錯
+    ig_handle: document.getElementById('applyIg').value.trim(),
+    whatsapp: document.getElementById('applyWa').value.trim(),
+    edit_pin: document.getElementById('applyPin').value.trim(),
+    lat: parseFloat(document.getElementById('applyLat').value),
+    lng: parseFloat(document.getElementById('applyLng').value),
+    status: 'pending' // 統一預設為待審核
+  };
+
+  try {
+    // 統一直接寫入唯一的 stylists 表格
+    const { error } = await supabaseClient.from('stylists').insert([payload]);
+    if (error) {
+      alert('❌ 寫入失敗: ' + error.message);
+    } else {
+      alert('🎉 申請提交成功！已送至後台審核');
+      document.getElementById('applyForm').reset();
+      closeApplyModal();
+      await fetchStylists();
+    }
+  } catch (err) {
+    alert('❌ 系統發生錯誤: ' + err.message);
+  }
+}
+
       
       const payload = {
         name: document.getElementById('applyName').value.trim(),
