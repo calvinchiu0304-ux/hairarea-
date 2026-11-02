@@ -61,9 +61,9 @@
       container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-8">載入中...</p>';
 
       try {
-        // 只讀取狀態為 pending 的資料
+        // 直接從 stylists 表抓取 status 為 pending 的資料
         const { data, error } = await supabaseClient
-          .from('pending_hairstylists')
+          .from('stylists')
           .select('*')
           .eq('status', 'pending');
 
@@ -78,7 +78,7 @@
         }
 
         container.innerHTML = data.map(item => `
-          <div id="card-${item.id}" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="font-bold text-base text-white">${item.name}</span>
@@ -101,48 +101,22 @@
 
     async function approveStylist(id) {
       try {
-        // 1. 抓取該筆申請資料
-        const { data: target, error: fetchErr } = await supabaseClient
-          .from('pending_hairstylists')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (fetchErr || !target) {
-          alert('找不到該筆申請資料');
-          return;
-        }
-
-        // 2. 準備將資料轉移至正式表 stylists
-        delete target.id;
-        target.status = 'approved';
-
-        const { error: insertErr } = await supabaseClient
+        // 核心改變：只需要將該 ID 的 status 更新為 approved 即可！
+        const { error } = await supabaseClient
           .from('stylists')
-          .insert([target]);
-
-        if (insertErr) {
-          alert('上線失敗: ' + insertErr.message);
-          return;
-        }
-
-        // 3. 從待審核表中刪除該筆資料
-        const { error: deleteErr } = await supabaseClient
-          .from('pending_hairstylists')
-          .delete()
+          .update({ status: 'approved' })
           .eq('id', id);
 
-        if (deleteErr) {
-          alert('轉移成功，但清理待審核資料失敗: ' + deleteErr.message);
-        } else {
-          alert('✅ 審核通過，已成功發布到公開地圖！');
+        if (error) {
+          alert('❌ 批准上線失敗: ' + error.message);
+          return;
         }
 
-        // 4. 重新載入清單，確保卡片消失
+        alert('🎉 審核成功！該髮型師已正式上線並在地圖上顯示。');
         await loadPendingStylists();
 
       } catch (err) {
-        alert('審核過程發生錯誤');
+        alert('❌ 審核過程發生錯誤: ' + err.message);
       }
     }
 
@@ -150,18 +124,18 @@
       if (!confirm('確定要拒絕並刪除這筆申請嗎？')) return;
       try {
         const { error } = await supabaseClient
-          .from('pending_hairstylists')
+          .from('stylists')
           .delete()
           .eq('id', id);
 
         if (error) {
-          alert('刪除失敗: ' + error.message);
+          alert('❌ 刪除失敗: ' + error.message);
         } else {
-          alert('已拒絕並刪除該申請。');
+          alert('已成功拒絕並刪除該申請。');
           await loadPendingStylists();
         }
       } catch (err) {
-        alert('操作失敗');
+        alert('❌ 操作失敗');
       }
     }
   </script>
