@@ -61,16 +61,16 @@
           </h1>
         </div>
         
-        <!-- 頂部功能按鈕區（優化間距與文字防止換行） -->
+        <!-- 頂部功能按鈕區 -->
         <div class="flex items-center gap-1 shrink-0">
           <button onclick="showModelModal()" class="text-[11px] bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
             <i class="fa-solid fa-camera"></i> Model
           </button>
           <button onclick="showWishModal()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> 上門服務。
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 上門服務
           </button>
           <button onclick="showApplyModal()" class="text-[11px] bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-user-plus"></i> 登記成為髮型師
+            <i class="fa-solid fa-user-plus"></i> 髮型師加入
           </button>
           <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 p-1.5 rounded-lg transition">
             <i class="fa-solid fa-sun" id="themeIcon"></i>
@@ -188,7 +188,7 @@
     </div>
   </div>
 
-  <!-- 📸 模特兒報名 Modal -->
+  <!-- 📸 成為髮型模特兒報名 Modal -->
   <div id="modelModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-pink-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeModelModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -334,7 +334,7 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-zinc-400 mb-1">Instagram</label>
+            <label class="block text-zinc-400 mb-1">Instagram 帳號 (可選)</label>
             <input type="text" id="applyIg" placeholder="kenji_hair" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
           <div>
@@ -393,7 +393,7 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-zinc-400 mb-1">Instagram</label>
+            <label class="block text-zinc-400 mb-1">Instagram 帳號</label>
             <input type="text" id="editIg" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
           <div>
@@ -617,6 +617,12 @@
       return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】看到 ${name} 的專頁，想查詢與預約剪髮/電染服務...`)}`;
     }
 
+    function getIgLink(igHandle) {
+      if (!igHandle) return null;
+      const cleanIg = String(igHandle).replace('@', '').trim();
+      return cleanIg ? `https://instagram.com/${cleanIg}` : null;
+    }
+
     function applyMapFilter(dark) {
       const tileContainer = baseTileLayer.getContainer();
       if (tileContainer) {
@@ -644,8 +650,10 @@
           iconSize: [95, 30], iconAnchor: [47, 15]
         });
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
+        const igUrl = getIgLink(stylist.ig_handle);
         const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
         const startingPrice = stylist.price_starting || 250;
+        
         const popupContent = `
           <div class="w-64 p-1 text-zinc-900 bg-white">
             <div class="flex items-center gap-3 mb-2">
@@ -661,6 +669,7 @@
             <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
               <div><span class="text-[10px] text-zinc-400 block">起步價</span><span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
               <div class="flex gap-1">
+                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
                 <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
                 <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
               </div>
@@ -676,6 +685,7 @@
       if (dataList.length === 0) { container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">暫無符合條件的髮型師</p></div>`; return; }
       container.innerHTML = dataList.map(stylist => {
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
+        const igUrl = getIgLink(stylist.ig_handle);
         const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
         return `
           <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900">
@@ -693,6 +703,7 @@
               ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('')}
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
+              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 hover:opacity-90 text-white text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
               <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約</a>
               <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold"><i class="fa-solid fa-pen"></i></button>
             </div>
@@ -774,6 +785,7 @@
         district: document.getElementById('applyDistrict').value,
         price_starting: parseFloat(document.getElementById('applyPrice').value) || 250,
         tags: tags,
+        ig_handle: document.getElementById('applyIg').value.trim(),
         whatsapp: document.getElementById('applyWa').value.trim(),
         edit_pin: document.getElementById('applyPin').value.trim(),
         lat: parseFloat(document.getElementById('applyLat').value),
