@@ -563,6 +563,90 @@
       renderMarkers(currentFilteredData);
       renderListView(currentFilteredData);
     }
+        function renderMarkers(dataList) {
+      markersGroup.clearLayers();
+      dataList.forEach(stylist => {
+        const bgColor = stylist.gender === 'F' ? '#EBBFCB' : '#89C4E6';
+        const customIcon = L.divIcon({
+          className: 'custom-pin',
+          html: `<div style="background-color: ${bgColor};" class="text-zinc-950 font-bold text-xs px-2.5 py-1 rounded-full shadow-md border border-white/80 flex items-center gap-1 hover:scale-110 transition cursor-pointer"><span>✂️ ${stylist.name}</span></div>`,
+          iconSize: [95, 30], iconAnchor: [47, 15]
+        });
+        
+        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
+        const igUrl = getIgLink(stylist.ig_handle);
+        
+        let tagsArr = [];
+        if (Array.isArray(stylist.tags)) {
+          tagsArr = stylist.tags;
+        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
+          tagsArr = stylist.tags.split(',').map(t => t.trim());
+        }
+        
+        const startingPrice = stylist.price_starting || 250;
+        
+        const popupContent = `
+          <div class="w-64 p-1 text-zinc-900 bg-white">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
+              <div>
+                <h4 class="font-bold text-base text-zinc-900 leading-tight">${stylist.name}</h4>
+                <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('')}
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
+              <div><span class="text-[10px] text-zinc-400 block">起步價</span><span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
+              <div class="flex gap-1 items-center">
+                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
+                <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
+                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
+              </div>
+            </div>
+          </div>
+        `;
+        L.marker([stylist.lat, stylist.lng], { icon: customIcon }).addTo(markersGroup).bindPopup(popupContent);
+      });
+    }
+
+    function renderListView(dataList) {
+      const container = document.getElementById('stylistListContainer');
+      if (dataList.length === 0) { container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">暫無符合條件的髮型師</p></div>`; return; }
+      container.innerHTML = dataList.map(stylist => {
+        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
+        const igUrl = getIgLink(stylist.ig_handle);
+        let tagsArr = [];
+        if (Array.isArray(stylist.tags)) {
+          tagsArr = stylist.tags;
+        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
+          tagsArr = stylist.tags.split(',').map(t => t.trim());
+        }
+        return `
+          <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
+                <div>
+                  <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
+                  <span class="text-xs text-teal-700 font-medium">${stylist.district} · ${stylist.shop_name}</span>
+                </div>
+              </div>
+              <span class="text-base font-extrabold text-teal-600">HK$ ${stylist.price_starting || 250}</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('')}
+            </div>
+            <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
+              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
+              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約</a>
+              <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold"><i class="fa-solid fa-pen"></i></button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
     function getWhatsAppLink(phone, name) {
       const cleanPhone = String(phone).replace(/\D/g, '');
