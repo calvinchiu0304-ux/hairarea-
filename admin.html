@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>香港髮型地圖 | 管理員審核後台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 font-sans p-4">
+  <!-- 登入密碼遮罩 Modal -->
+  <div id="loginModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+      <div class="w-12 h-12 bg-teal-500/20 text-teal-400 rounded-xl flex items-center justify-center mx-auto mb-3 text-xl">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h2 class="font-bold text-lg mb-1">管理員登入</h2>
+      <p class="text-xs text-zinc-400 mb-4">請輸入後台管理密碼以繼續</p>
+      <input type="password" id="adminPassword" placeholder="輸入管理員密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-center text-white mb-3 focus:outline-none focus:border-teal-500">
+      <button onclick="checkAdminPassword()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2 rounded-xl text-xs transition">登入後台</button>
+    </div>
+  </div>
+
+  <!-- 後台主畫面 -->
+  <div id="adminContent" class="max-w-4xl mx-auto hidden">
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800">
+      <div class="flex items-center gap-2">
+        <h1 class="font-bold text-lg text-teal-400"><i class="fa-solid fa-shield-halved"></i> 髮型師審核後台</h1>
+      </div>
+      <a href="index.html" class="text-xs text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg">返回公開地圖</a>
+    </div>
+
+    <div class="mb-4">
+      <h2 class="text-sm font-bold text-zinc-300 mb-2">待審核申請清單</h2>
+    </div>
+
+    <div id="pendingList" class="space-y-3">
+      <!-- 動態載入 -->
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://dzfyweiypnhodcffussz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Znl3ZWl5cG5ob2RjZmZ1c3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjU0ODAsImV4cCI6MjEwODg0MTQ4MH0.4IGm5K2N9RDr_RAO6STivC9E6_HxlLyMg6tCzTS6zEg';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function checkAdminPassword() {
+      const pwd = document.getElementById('adminPassword').value;
+      if (pwd === 'admin888') {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('adminContent').classList.remove('hidden');
+        loadPendingStylists();
+      } else {
+        alert('密碼錯誤！');
+      }
+    }
+
+    async function loadPendingStylists() {
+      const container = document.getElementById('pendingList');
+      container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-8">載入中...</p>';
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('pending_hairstylists')
+          .select('*')
+          .eq('status', 'pending');
+
+        if (error) {
+          container.innerHTML = `<p class="text-xs text-red-400 text-center py-8">讀取失敗: ${error.message}</p>`;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-8">目前沒有待審核的申請</p>';
+          return;
+        }
+
+        container.innerHTML = data.map(item => `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="font-bold text-base text-white">${item.name}</span>
+                <span class="text-xs bg-teal-500/20 text-teal-400 px-2 py-0.5 rounded">${item.gender === 'F' ? '女髮型師' : '男髮型師'}</span>
+                <span class="text-xs text-zinc-400">@ ${item.shop_name} (${item.district})</span>
+              </div>
+              <p class="text-xs text-zinc-400 mb-1">起步價: HK$ ${item.price_starting} | WhatsApp: ${item.whatsapp} | IG: ${item.ig_handle || '無'}</p>
+              <p class="text-xs text-zinc-500">標籤: ${(item.tags || []).join(', ')}</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button onclick="approveStylist(${item.id})" class="flex-1 sm:flex-initial bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold px-4 py-2 rounded-xl text-xs transition">批准上線</button>
+              <button onclick="rejectStylist(${item.id})" class="flex-1 sm:flex-initial bg-zinc-800 hover:bg-zinc-700 text-red-400 font-bold px-4 py-2 rounded-xl text-xs transition">拒絕刪除</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="text-xs text-red-400 text-center py-8">發生異常錯誤</p>`;
+      }
+    }
+
+    async function approveStylist(id) {
+      try {
+        const { data: target, error: fetchErr } = await supabaseClient
+          .from('pending_hairstylists')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (fetchErr || !target) {
+          alert('找不到該筆申請資料');
+          return;
+        }
+
+        delete target.id;
+        target.status = 'approved';
+
+        const { error: insertErr } = await supabaseClient
+          .from('stylists')
+          .insert([target]);
+
+        if (insertErr) {
+          alert('上線失敗: ' + insertErr.message);
+          return;
+        }
+
+        const { error: deleteErr } = await supabaseClient
+          .from('pending_hairstylists')
+          .delete()
+          .eq('id', id);
+
+        if (deleteErr) {
+          alert('清理待審核清單失敗: ' + deleteErr.message);
+          return;
+        }
+
+        alert('✅ 審核通過，已成功發布到公開地圖！');
+        loadPendingStylists();
+      } catch (err) {
+        alert('審核過程發生錯誤');
+      }
+    }
+
+    async function rejectStylist(id) {
+      if (!confirm('確定要拒絕並刪除這筆申請嗎？')) return;
+      try {
+        const { error } = await supabaseClient
+          .from('pending_hairstylists')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          alert('刪除失敗: ' + error.message);
+        } else {
+          alert('已拒絕並刪除該申請。');
+          loadPendingStylists();
+        }
+      } catch (err) {
+        alert('操作失敗');
+      }
+    }
+  </script>
+</body>
+</html>
