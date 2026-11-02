@@ -35,7 +35,7 @@
 
     <!-- 區塊 1：髮型師列表 -->
     <div id="sectionStylists" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-4">
-      <h2 class="font-bold text-sm text-teal-400">所有已收錄與待審核髮型師</h2>
+      <h2 class="font-bold text-sm text-teal-400">所有已收錄與待審核髮型師 (含流量統計)</h2>
       <div id="adminStylistList" class="space-y-3 text-xs"></div>
     </div>
 
@@ -94,7 +94,7 @@
       }
     }
 
-    // ✂️ 髮型師審核與管理（已補上審批通過與待審按鈕）
+    // ✂️ 髮型師審核與管理（包含 WA 與 IG 點擊數據顯示）
     async function loadAdminData() {
       const container = document.getElementById('adminStylistList');
       const { data, error } = await supabaseClient.from('stylists').select('*').order('id', { ascending: false });
@@ -102,10 +102,13 @@
       
       container.innerHTML = data.map(s => {
         const isPending = s.status === 'pending' || !s.status;
+        const waClicks = s.wa_clicks || 0;
+        const igClicks = s.ig_clicks || 0;
+
         return `
           <div class="bg-zinc-950 border ${isPending ? 'border-amber-500/50' : 'border-zinc-800'} p-3.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <span class="font-bold text-zinc-100 text-sm">${s.name}</span> 
                 <span class="text-teal-400">(${s.district} · ${s.shop_name})</span>
                 <span class="text-[10px] px-2 py-0.5 rounded font-bold ${isPending ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-teal-500/20 text-teal-400 border border-teal-500/30'}">
@@ -117,6 +120,15 @@
                 WA: <span class="text-zinc-200">${s.whatsapp}</span> | 
                 IG: <span class="text-zinc-200">${s.ig_handle || '無'}</span>
               </p>
+              <!-- 📊 數據統計標籤 -->
+              <div class="flex items-center gap-2 mt-1.5">
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-semibold">
+                  <i class="fa-brands fa-whatsapp"></i> WA 預約點擊: ${waClicks} 次
+                </span>
+                <span class="text-[10px] bg-pink-500/10 text-pink-400 border border-pink-500/30 px-2 py-0.5 rounded font-semibold">
+                  <i class="fa-brands fa-instagram"></i> IG 瀏覽點擊: ${igClicks} 次
+                </span>
+              </div>
             </div>
             
             <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
