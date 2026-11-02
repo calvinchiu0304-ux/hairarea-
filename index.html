@@ -70,13 +70,15 @@
           </div>
         </div>
         
-        <div class="flex items-center gap-2">
-          <button onclick="showApplyModal()" class="text-xs bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
+        <div class="flex items-center gap-1.5">
+          <button onclick="showWishModal()" class="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 許願池
+          </button>
+          <button onclick="showApplyModal()" class="text-xs bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
             <i class="fa-solid fa-user-plus"></i> 自薦加入
           </button>
-          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
+          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 px-2 py-1.5 rounded-lg transition flex items-center gap-1">
             <i class="fa-solid fa-sun" id="themeIcon"></i>
-            <span id="themeText" class="hidden sm:inline">淺色</span>
           </button>
           <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition flex items-center gap-1 pl-1">
             <i class="fa-solid fa-lock"></i>
@@ -84,8 +86,18 @@
         </div>
       </div>
 
-      <!-- 篩選列 -->
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+      <!-- 功能切換列：地圖 / 上門告示板 -->
+      <div class="flex items-center gap-2 border-b border-zinc-800/80 pb-1.5">
+        <button id="tabMapBtn" onclick="switchMainTab('map')" class="text-xs px-3 py-1 rounded-lg font-bold bg-teal-500 text-zinc-950 transition flex items-center gap-1">
+          <i class="fa-solid fa-map-location-dot"></i> 📍 髮型師地圖
+        </button>
+        <button id="tabBoardBtn" onclick="switchMainTab('board')" class="text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1">
+          <i class="fa-solid fa-house-chimney-user"></i> 🏠 上門理髮告示板
+        </button>
+      </div>
+
+      <!-- 地圖專用篩選列 -->
+      <div id="mapFilterRow" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
         <select id="districtFilter" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-teal-500">
           <option value="ALL">📍 全部地區</option>
           <option value="mongkok">旺角</option>
@@ -100,45 +112,58 @@
         <button onclick="resetFilters()" class="text-xs shrink-0 text-zinc-400 underline px-1">重置</button>
       </div>
 
-      <!-- 📢 升級版：支援圖片的品牌推廣與贊助商 Banner 區塊 -->
-      <div class="bg-zinc-900 border border-teal-500/40 rounded-xl p-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-        <div class="flex items-center gap-3 w-full sm:w-auto">
-          <!-- 品牌宣傳圖片 (可替換為實際圖片網址) -->
-          <div class="w-14 h-12 rounded-lg bg-teal-900/50 border border-teal-500/30 overflow-hidden shrink-0 flex items-center justify-center">
-            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=120&q=80" alt="品牌宣傳" class="w-full h-full object-cover">
-          </div>
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="bg-teal-500 text-zinc-950 font-bold px-1.5 py-0.5 rounded text-[10px]">官方贊助</span>
-              <h4 class="text-xs font-bold text-zinc-100">ProHair 專業美髮器材總代理</h4>
-            </div>
-            <p class="text-[11px] text-zinc-400 mt-0.5">🔥 全新日系負離子風筒到港，獨立髮型師專享批發優惠！</p>
-          </div>
+      <!-- 📢 品牌推廣橫幅 (B2B 區塊) -->
+      <div class="bg-gradient-to-r from-teal-950/80 via-zinc-900 to-zinc-900 border border-teal-500/30 rounded-xl px-3 py-1.5 flex items-center justify-between text-xs shadow-md">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="bg-teal-500 text-zinc-950 font-bold px-1.5 py-0.5 rounded text-[10px] shrink-0">贊助推廣</span>
+          <p class="text-teal-300 truncate font-medium">🔥 專業髮品代理商招募中：解鎖全港髮型師精準曝光，立即聯絡合作！</p>
         </div>
-        <a href="https://api.whatsapp.com/send?phone=85290810468&text=你好，我在【香港髮型地圖】看到了 ProHair 的推廣，想查詢產品與合作方案..." target="_blank" class="w-full sm:w-auto text-center shrink-0 bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center justify-center gap-1">
-          <i class="fa-brands fa-whatsapp"></i> 了解詳情 / 查詢
+        <a href="https://api.whatsapp.com/send?phone=85291234567&text=你好，我想查詢【香港髮型地圖】的品牌贊助與推廣合作方案..." target="_blank" class="shrink-0 bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/40 px-2 py-0.5 rounded-lg font-bold transition flex items-center gap-1 text-[11px]">
+          <i class="fa-solid fa-handshake"></i> 查詢合作
         </a>
       </div>
 
     </div>
   </header>
 
-  <!-- 地圖 View 主體 -->
-  <main class="relative w-full h-full">
+  <!-- View 1: 地圖與列表 View 主體 -->
+  <main id="mapMainView" class="relative w-full h-full">
     <div id="map"></div>
-    <div id="listView" class="hidden absolute inset-0 top-[150px] bg-zinc-950/95 z-10 overflow-y-auto p-4 pb-28">
+    <div id="listView" class="hidden absolute inset-0 top-[170px] bg-zinc-950/95 z-10 overflow-y-auto p-4 pb-28">
       <div class="max-w-md mx-auto flex flex-col gap-4" id="stylistListContainer"></div>
     </div>
   </main>
 
+  <!-- View 2: 🏠 上門理髮告示板 View 主體 -->
+  <main id="boardMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
+    <div class="max-w-xl mx-auto space-y-4">
+      <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
+        <div>
+          <h2 class="font-bold text-base text-amber-400 flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 顧客上門需求許願池
+          </h2>
+          <p class="text-xs text-zinc-400 mt-0.5">髮型師可在此瀏覽顧客發布的上門需求並直接 WhatsApp 聯繫接單！</p>
+        </div>
+        <button onclick="showWishModal()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold px-3 py-2 rounded-xl transition shrink-0 active:scale-95 shadow-md">
+          🙋 我要許願
+        </button>
+      </div>
+
+      <!-- 告示板需求清單容器 -->
+      <div id="homeServiceBoardContainer" class="space-y-3">
+        <!-- JS 動態渲染 -->
+      </div>
+    </div>
+  </main>
+
   <!-- 右側控制與切換檢視 -->
-  <div class="fixed right-4 bottom-28 z-30 flex flex-col gap-2">
+  <div id="floatingMapControls" class="fixed right-4 bottom-28 z-30 flex flex-col gap-2">
     <button onclick="zoomInMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95"><i class="fa-solid fa-plus"></i></button>
     <button onclick="zoomOutMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95"><i class="fa-solid fa-minus"></i></button>
     <button onclick="showHelpModal()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-teal-400 rounded-xl flex items-center justify-center text-sm shadow-xl hover:bg-zinc-800 transition active:scale-95"><i class="fa-solid fa-question"></i></button>
   </div>
 
-  <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+  <div id="floatingToggleBtn" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
     <button id="viewToggleBtn" onclick="toggleView()" class="bg-zinc-900/95 border border-teal-500/50 text-teal-400 font-medium text-sm px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-zinc-800 transition active:scale-95 backdrop-blur-md">
       <i class="fa-solid fa-list-ul" id="toggleIcon"></i>
       <span id="toggleText">切換為列表視角</span>
@@ -152,10 +177,65 @@
       <h3 class="text-base font-bold text-teal-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> 關於香港髮型地圖</h3>
       <div class="text-xs text-zinc-300 space-y-2.5 leading-relaxed">
         <p>✨ <strong>認人不認店：</strong> 專為香港人而設，搜尋髮型師個人專頁與真實在地作品。</p>
-        <p>🔑 <strong>自主密碼修改：</strong> 髮型師可透過自薦時設定的密碼隨時更新個人資料。</p>
-        <p>📢 <strong>品牌推廣專區：</strong> 支援圖片與宣傳橫幅，為美髮品牌與獨立髮型師提供高效對接渠道。</p>
+        <p>🏠 <strong>上門理髮告示板：</strong> 提供長者、行動不便者及上門顧客快速發布需求接單管道。</p>
+        <p>🔑 <strong>自主密碼修改：</strong> 髮型師可憑自訂密碼隨時更新資料。</p>
       </div>
       <button onclick="closeHelpModal()" class="w-full mt-5 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2 rounded-xl text-xs transition">明白，開始使用</button>
+    </div>
+  </div>
+
+  <!-- 🎯 顧客發布上門需求 Modal (許願池) -->
+  <div id="wishModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-zinc-900 border border-amber-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
+      <button onclick="closeWishModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-amber-400 mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> 發布上門理髮需求 (許願)
+      </h3>
+      <form id="wishForm" onsubmit="submitWishRequest(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-zinc-400 mb-1">您的稱呼 *</label>
+          <input type="text" id="wishName" required placeholder="例如: 陳小姐 / 張先生" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-zinc-400 mb-1">地區 *</label>
+            <select id="wishDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
+              <option value="旺角">旺角</option>
+              <option value="銅鑼灣">銅鑼灣</option>
+              <option value="尖沙咀">尖沙咀</option>
+              <option value="沙田">沙田</option>
+              <option value="觀塘">觀塘</option>
+              <option value="元朗">元朗</option>
+              <option value="荃灣">荃灣</option>
+              <option value="其他地區">其他地區</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-zinc-400 mb-1">服務對象/類型 *</label>
+            <select id="wishServiceType" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
+              <option value="長者理髮">長者理髮</option>
+              <option value="行動不便">行動不便/病患</option>
+              <option value="一般上門造型">一般上門造型</option>
+              <option value="新娘/宴會造型">新娘/宴會造型</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-zinc-400 mb-1">聯絡 WhatsApp 電話 *</label>
+          <input type="text" id="wishWa" required placeholder="例如: 85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-zinc-400 mb-1">期望日期/時間</label>
+          <input type="text" id="wishDate" placeholder="例如: 本週六下午或平日晚上" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-zinc-400 mb-1">備註說明 (詳細地址/特殊需求)</label>
+          <textarea id="wishNotes" rows="2" placeholder="例如：需輪椅輔助、希望髮型師帶輪椅披肩，地點近旺角站 B 出口..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500"></textarea>
+        </div>
+        <button type="submit" class="w-full mt-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
+          公開發布需求至告示板
+        </button>
+      </form>
     </div>
   </div>
 
@@ -311,20 +391,124 @@
       applyMapFilter(true);
       markersGroup = L.layerGroup().addTo(map);
       await fetchStylists();
+      await fetchHomeServiceBoard();
     };
+
+    // 切換主頁籤 (地圖 / 告示板)
+    function switchMainTab(tab) {
+      const mapMainView = document.getElementById('mapMainView');
+      const boardMainView = document.getElementById('boardMainView');
+      const tabMapBtn = document.getElementById('tabMapBtn');
+      const tabBoardBtn = document.getElementById('tabBoardBtn');
+      const mapFilterRow = document.getElementById('mapFilterRow');
+      const floatingMapControls = document.getElementById('floatingMapControls');
+      const floatingToggleBtn = document.getElementById('floatingToggleBtn');
+
+      if (tab === 'map') {
+        mapMainView.classList.remove('hidden');
+        boardMainView.classList.add('hidden');
+        mapFilterRow.classList.remove('hidden');
+        floatingMapControls.classList.remove('hidden');
+        floatingToggleBtn.classList.remove('hidden');
+
+        tabMapBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-teal-500 text-zinc-950 transition flex items-center gap-1";
+        tabBoardBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1";
+      } else {
+        mapMainView.classList.add('hidden');
+        boardMainView.classList.remove('hidden');
+        mapFilterRow.classList.add('hidden');
+        floatingMapControls.classList.add('hidden');
+        floatingToggleBtn.classList.add('hidden');
+
+        tabBoardBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-amber-500 text-zinc-950 transition flex items-center gap-1";
+        tabMapBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1";
+        
+        fetchHomeServiceBoard(); // 重新載入告示板
+      }
+    }
+
+    // 載入上門理髮告示板資料
+    async function fetchHomeServiceBoard() {
+      const container = document.getElementById('homeServiceBoardContainer');
+      try {
+        const { data, error } = await supabaseClient
+          .from('home_service_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error || !data || data.length === 0) {
+          container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-3xl mb-2 block text-amber-500/50"></i><p class="text-sm">暫無公開發布的上門需求</p></div>`;
+          return;
+        }
+
+        container.innerHTML = data.map(req => {
+          const cleanPhone = String(req.whatsapp || '').replace(/\D/g, '');
+          const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】告示板看到您的上門理髮需求（${req.service_type} - ${req.district}），想向您查詢與報價...`)}`;
+          
+          return `
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-md text-zinc-100 transition hover:border-amber-500/40 space-y-2">
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">${req.service_type || '上門理髮'}</span>
+                  <h3 class="font-bold text-base text-zinc-100 mt-1">${req.customer_name} 📍 ${req.district}</h3>
+                </div>
+                <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1 shrink-0 active:scale-95 shadow-md">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> 一鍵接單報價
+                </a>
+              </div>
+              
+              <div class="text-xs text-zinc-300 space-y-1 bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-800/80">
+                <p>🗓️ <strong>期望時間：</strong> ${req.preferred_date || '彈性/待議'}</p>
+                <p>📝 <strong>需求備註：</strong> ${req.notes || '無無特殊備註'}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">載入告示板時發生錯誤</p></div>`;
+      }
+    }
+
+    // 發布許願需求 Modal 控制與提交
+    function showWishModal() { document.getElementById('wishModal').classList.remove('hidden'); }
+    function closeWishModal() { document.getElementById('wishModal').classList.add('hidden'); }
+
+    async function submitWishRequest(e) {
+      e.preventDefault();
+      const payload = {
+        customer_name: document.getElementById('wishName').value.trim(),
+        district: document.getElementById('wishDistrict').value,
+        service_type: document.getElementById('wishServiceType').value,
+        whatsapp: document.getElementById('wishWa').value.trim(),
+        preferred_date: document.getElementById('wishDate').value.trim(),
+        notes: document.getElementById('wishNotes').value.trim()
+      };
+
+      try {
+        const { error } = await supabaseClient.from('home_service_requests').insert([payload]);
+        if (error) {
+          alert('發布失敗: ' + error.message);
+        } else {
+          alert('🎉 上門需求發布成功！髮型師看到後將會透過 WhatsApp 主動聯繫您。');
+          document.getElementById('wishForm').reset();
+          closeWishModal();
+          switchMainTab('board'); // 自動切換至告示板
+        }
+      } catch (err) {
+        alert('發布發生異常');
+      }
+    }
 
     async function fetchStylists() {
       try {
         const { data, error } = await supabaseClient
           .from('stylists')
           .select('*')
-          .eq('status', 'approved');
+          .or('status.eq.approved,status.is.null');
 
-        if (!error && data) {
-          rawStylistsData = data;
-        } else {
-          rawStylistsData = [];
-        }
+        if (!error && data) rawStylistsData = data;
+        else rawStylistsData = [];
       } catch (err) {
         rawStylistsData = [];
       }
@@ -348,13 +532,12 @@
 
     function toggleMapTheme() {
       const themeIcon = document.getElementById('themeIcon');
-      const themeText = document.getElementById('themeText');
       if (isDarkTheme) {
         applyMapFilter(false);
-        themeIcon.className = "fa-solid fa-moon"; themeText.innerText = "深色"; isDarkTheme = false;
+        themeIcon.className = "fa-solid fa-moon"; isDarkTheme = false;
       } else {
         applyMapFilter(true);
-        themeIcon.className = "fa-solid fa-sun"; themeText.innerText = "淺色"; isDarkTheme = true;
+        themeIcon.className = "fa-solid fa-sun"; isDarkTheme = true;
       }
     }
 
@@ -469,16 +652,11 @@
       document.getElementById('editModal').classList.remove('hidden');
     }
 
-    function closeEditModal() {
-      document.getElementById('editModal').classList.add('hidden');
-    }
+    function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
 
     async function verifyAndLoadEditData() {
       const pin = document.getElementById('verifyPinInput').value.trim();
-      if (!pin) {
-        alert('請輸入編輯密碼！');
-        return;
-      }
+      if (!pin) { alert('請輸入編輯密碼！'); return; }
 
       try {
         const { data, error } = await supabaseClient
@@ -487,15 +665,8 @@
           .eq('id', targetEditingId)
           .single();
 
-        if (error || !data) {
-          alert('找不到此髮型師資料');
-          return;
-        }
-
-        if (data.edit_pin && data.edit_pin !== pin) {
-          alert('❌ 密碼錯誤！無法解鎖修改權限。');
-          return;
-        }
+        if (error || !data) { alert('找不到此髮型師資料'); return; }
+        if (data.edit_pin && data.edit_pin !== pin) { alert('❌ 密碼錯誤！無法解鎖修改權限。'); return; }
 
         document.getElementById('editStylistId').value = data.id;
         document.getElementById('editName').value = data.name || '';
@@ -507,9 +678,7 @@
         document.getElementById('editAuthStep').classList.add('hidden');
         document.getElementById('editForm').classList.remove('hidden');
 
-      } catch (err) {
-        alert('驗證過程發生錯誤');
-      }
+      } catch (err) { alert('驗證過程發生錯誤'); }
     }
 
     async function submitEditUpdate(e) {
@@ -524,21 +693,14 @@
       };
 
       try {
-        const { error } = await supabaseClient
-          .from('stylists')
-          .update(payload)
-          .eq('id', id);
-
-        if (error) {
-          alert('更新失敗: ' + error.message);
-        } else {
+        const { error } = await supabaseClient.from('stylists').update(payload).eq('id', id);
+        if (error) { alert('更新失敗: ' + error.message); } 
+        else {
           alert('🎉 個人資料已成功更新！');
           closeEditModal();
           await fetchStylists();
         }
-      } catch (err) {
-        alert('更新發生異常');
-      }
+      } catch (err) { alert('更新發生異常'); }
     }
 
     function applyFilters() {
@@ -547,10 +709,7 @@
       renderMarkers(currentFilteredData);
       renderListView(currentFilteredData);
     }
-    function toggleTagFilter(tag) {
-      activeTag = (activeTag === tag) ? null : tag;
-      applyFilters();
-    }
+    function toggleTagFilter(tag) { activeTag = (activeTag === tag) ? null : tag; applyFilters(); }
     function resetFilters() {
       document.getElementById('districtFilter').value = 'ALL';
       activeTag = null;
