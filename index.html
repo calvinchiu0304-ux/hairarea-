@@ -37,48 +37,20 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    #map {
-      height: 100vh;
-      width: 100%;
-      z-index: 1;
-      background-color: #18181b;
-    }
-    
-    .dark-map-tile {
-      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-    }
-
-    .leaflet-marker-pane,
-    .leaflet-popup-pane {
-      filter: none !important;
-    }
-
+    #map { height: 100vh; width: 100%; z-index: 1; background-color: #18181b; }
+    .dark-map-tile { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+    .leaflet-marker-pane, .leaflet-popup-pane { filter: none !important; }
     .leaflet-popup-content-wrapper {
-      background: #ffffff !important;
-      color: #18181b !important;
-      border-radius: 16px !important;
-      padding: 6px !important;
+      background: #ffffff !important; color: #18181b !important;
+      border-radius: 16px !important; padding: 6px !important;
       border: 1px solid #e4e4e7 !important;
       box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.3) !important;
     }
-    .leaflet-popup-tip {
-      background: #ffffff !important;
-    }
-    .leaflet-popup-content {
-      margin: 8px !important;
-    }
-
-    .leaflet-control-zoom {
-      display: none !important;
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .leaflet-popup-tip { background: #ffffff !important; }
+    .leaflet-popup-content { margin: 8px !important; }
+    .leaflet-control-zoom { display: none !important; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased overflow-hidden">
@@ -102,12 +74,10 @@
           <button onclick="showApplyModal()" class="text-xs bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
             <i class="fa-solid fa-user-plus"></i> 自薦加入
           </button>
-
           <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
             <i class="fa-solid fa-sun" id="themeIcon"></i>
             <span id="themeText" class="hidden sm:inline">淺色</span>
           </button>
-
           <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition flex items-center gap-1 pl-1">
             <i class="fa-solid fa-lock"></i>
           </a>
@@ -122,22 +92,11 @@
           <option value="tst">尖沙咀</option>
           <option value="shatin">沙田</option>
         </select>
-
-        <button onclick="toggleTagFilter('日系電髮')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #日系電髮
-        </button>
-        <button onclick="toggleTagFilter('Barber漸變')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #Barber漸變
-        </button>
-        <button onclick="toggleTagFilter('單剪速剪')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #單剪速剪
-        </button>
-        <button onclick="toggleTagFilter('韓系剪裁')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #韓系剪裁
-        </button>
-        <button onclick="resetFilters()" class="text-xs shrink-0 text-zinc-400 underline px-1">
-          重置
-        </button>
+        <button onclick="toggleTagFilter('日系電髮')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#日系電髮</button>
+        <button onclick="toggleTagFilter('Barber漸變')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#Barber漸變</button>
+        <button onclick="toggleTagFilter('單剪速剪')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#單剪速剪</button>
+        <button onclick="toggleTagFilter('韓系剪裁')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#韓系剪裁</button>
+        <button onclick="resetFilters()" class="text-xs shrink-0 text-zinc-400 underline px-1">重置</button>
       </div>
     </div>
   </header>
@@ -145,26 +104,18 @@
   <!-- 地圖 View 主體 -->
   <main class="relative w-full h-full">
     <div id="map"></div>
-
     <div id="listView" class="hidden absolute inset-0 top-[96px] bg-zinc-950/95 z-10 overflow-y-auto p-4 pb-28">
       <div class="max-w-md mx-auto flex flex-col gap-4" id="stylistListContainer"></div>
     </div>
   </main>
 
-  <!-- 右側垂直浮動工具欄 -->
+  <!-- 右側控制與切換檢視 -->
   <div class="fixed right-4 bottom-28 z-30 flex flex-col gap-2">
-    <button onclick="zoomInMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-    <button onclick="zoomOutMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95">
-      <i class="fa-solid fa-minus"></i>
-    </button>
-    <button onclick="showHelpModal()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-teal-400 rounded-xl flex items-center justify-center text-sm shadow-xl hover:bg-zinc-800 transition active:scale-95">
-      <i class="fa-solid fa-question"></i>
-    </button>
+    <button onclick="zoomInMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95"><i class="fa-solid fa-plus"></i></button>
+    <button onclick="zoomOutMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95"><i class="fa-solid fa-minus"></i></button>
+    <button onclick="showHelpModal()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-teal-400 rounded-xl flex items-center justify-center text-sm shadow-xl hover:bg-zinc-800 transition active:scale-95"><i class="fa-solid fa-question"></i></button>
   </div>
 
-  <!-- 浮動控制區域 -->
   <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
     <button id="viewToggleBtn" onclick="toggleView()" class="bg-zinc-900/95 border border-teal-500/50 text-teal-400 font-medium text-sm px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-zinc-800 transition active:scale-95 backdrop-blur-md">
       <i class="fa-solid fa-list-ul" id="toggleIcon"></i>
@@ -175,33 +126,22 @@
   <!-- 說明彈窗 Modal -->
   <div id="helpModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-5 relative shadow-2xl">
-      <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-      <h3 class="text-base font-bold text-teal-400 mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-circle-info"></i> 關於香港髮型地圖
-      </h3>
+      <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-teal-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> 關於香港髮型地圖</h3>
       <div class="text-xs text-zinc-300 space-y-2.5 leading-relaxed">
         <p>✨ <strong>認人不認店：</strong> 專為香港人而設，搜尋髮型師個人專頁與真實在地作品。</p>
-        <p>🎨 <strong>標籤識別性別：</strong> 天空柔藍標籤代表男髮型師 (#89C4E6)，櫻花柔粉標籤代表女髮型師 (#EBBFCB)。</p>
-        <p>📲 <strong>Smart WhatsApp 直連：</strong> 一鍵發送預設訊息直接預約報價，絕無中間人抽佣。</p>
-        <p>🔄 <strong>雲端資料庫串接：</strong> 資料實時與 Supabase 資料庫同步連線。</p>
+        <p>🔑 <strong>自主密碼修改：</strong> 髮型師可透過自薦時設定的密碼隨時更新個人資料。</p>
+        <p>📲 <strong>Smart WhatsApp 直連：</strong> 一鍵發送預設訊息直接預約報價。</p>
       </div>
-      <button onclick="closeHelpModal()" class="w-full mt-5 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2 rounded-xl text-xs transition">
-        明白，開始使用
-      </button>
+      <button onclick="closeHelpModal()" class="w-full mt-5 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2 rounded-xl text-xs transition">明白，開始使用</button>
     </div>
   </div>
 
-  <!-- 髮型師自薦表單 Modal -->
+  <!-- 髮型師自薦表單 Modal (含編輯密碼) -->
   <div id="applyModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
-      <button onclick="closeApplyModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-      <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2">
-        <i class="fa-solid fa-user-plus"></i> 髮型師自薦加入地圖
-      </h3>
+      <button onclick="closeApplyModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> 髮型師自薦加入地圖</h3>
       <form id="applyForm" onsubmit="submitApplication(event)" class="space-y-3 text-xs">
         <div>
           <label class="block text-zinc-400 mb-1">您的稱呼 / 髮型師名字 *</label>
@@ -251,7 +191,7 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-zinc-400 mb-1">Instagram 帳號</label>
-            <input type="text" id="applyIg" placeholder="例如: calvin_hair" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+            <input type="text" id="applyIg" placeholder="calvin_hair" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
           </div>
           <div>
             <label class="block text-zinc-400 mb-1">WhatsApp 電話 *</label>
@@ -259,86 +199,112 @@
           </div>
         </div>
 
+        <!-- 新增：設定日後修改用的編輯密碼 -->
+        <div>
+          <label class="block text-teal-400 mb-1 font-bold">🔐 設定編輯密碼 (4-6位數字) *</label>
+          <input type="password" id="applyPin" required maxlength="6" placeholder="例如: 8888 (日後修改資料需憑此密碼)" class="w-full bg-zinc-800 border border-teal-500/60 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-400">
+          <p class="text-[10px] text-zinc-500 mt-0.5">⚠️ 請記住此密碼，日後若需更改電話、價格或店名將會用到。</p>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="text-zinc-400">📍 點擊下方地圖設定店舖位置 *</label>
-            <button type="button" onclick="getGpsLocation()" class="text-[10px] text-teal-400 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded hover:bg-teal-500/20 transition flex items-center gap-1">
-              <i class="fa-solid fa-location-crosshairs"></i> 使用當前 GPS
-            </button>
+            <button type="button" onclick="getGpsLocation()" class="text-[10px] text-teal-400 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded hover:bg-teal-500/20 transition flex items-center gap-1"><i class="fa-solid fa-location-crosshairs"></i> 使用當前 GPS</button>
           </div>
           <div id="miniMap" class="w-full h-32 rounded-xl border border-zinc-700 z-0 mb-2"></div>
-          
-          <div>
-            <label class="block text-zinc-400 mb-1">店舖詳細地址</label>
-            <div class="flex gap-2">
-              <input type="text" id="applyAddress" placeholder="點擊地圖自動帶出，可手動補充" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-              <button type="button" onclick="searchAddressOnMap()" class="bg-zinc-700 hover:bg-zinc-600 text-zinc-200 px-3 py-2 rounded-lg transition shrink-0">
-                <i class="fa-solid fa-magnifying-glass"></i> 定位
-              </button>
-            </div>
-          </div>
+          <input type="text" id="applyAddress" placeholder="點擊地圖自動帶出地址" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500 text-xs">
         </div>
 
         <input type="hidden" id="applyLat" value="22.3175">
         <input type="hidden" id="applyLng" value="114.1694">
 
-        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">
-          送出審核申請
-        </button>
+        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">送出審核申請</button>
       </form>
     </div>
   </div>
 
+  <!-- 髮型師修改資料 Modal (獨立編輯面板) -->
+  <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
+      <button onclick="closeEditModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i> 髮型師個人檔案修改</h3>
+      
+      <!-- 步驟一：輸入密碼驗證 -->
+      <div id="editAuthStep" class="space-y-3 text-xs">
+        <p class="text-zinc-300">請輸入您當初自薦時設定的「編輯密碼」以解鎖修改權限：</p>
+        <div>
+          <label class="block text-zinc-400 mb-1">編輯密碼 *</label>
+          <input type="password" id="verifyPinInput" placeholder="輸入 4-6 位數字密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+        </div>
+        <button type="button" onclick="verifyAndLoadEditData()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">驗證並載入資料</button>
+      </div>
+
+      <!-- 步驟二：修改表單 (預設隱藏，驗證通過後顯示) -->
+      <form id="editForm" onsubmit="submitEditUpdate(event)" class="space-y-3 text-xs hidden">
+        <input type="hidden" id="editStylistId">
+        <div>
+          <label class="block text-zinc-400 mb-1">您的稱呼 / 名字 *</label>
+          <input type="text" id="editName" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-zinc-400 mb-1">髮型屋名稱 *</label>
+            <input type="text" id="editShop" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          </div>
+          <div>
+            <label class="block text-zinc-400 mb-1">門檻起步價 (HK$) *</label>
+            <input type="number" id="editPrice" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-zinc-400 mb-1">Instagram</label>
+            <input type="text" id="editIg" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          </div>
+          <div>
+            <label class="block text-zinc-400 mb-1">WhatsApp *</label>
+            <input type="text" id="editWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          </div>
+        </div>
+        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">儲存更新資料</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript 邏輯 -->
   <script>
     const SUPABASE_URL = 'https://dzfyweiypnhodcffussz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Znl3ZWl5cG5ob2RjZmZ1c3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjU0ODAsImV4cCI6MjEwODg0MTQ4MH0.4IGm5K2N9RDr_RAO6STivC9E6_HxlLyMg6tCzTS6zEg';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let map;
-    let markersGroup;
-    let baseTileLayer;
+    let map, markersGroup, baseTileLayer;
     let isDarkTheme = true;
     let rawStylistsData = [];
     let currentFilteredData = [];
     let activeTag = null;
     let isListView = false;
-
-    let miniMap = null;
-    let miniMarker = null;
+    let miniMap = null, miniMarker = null;
+    let targetEditingId = null; // 當前正準備修改的 ID
 
     window.onload = async function() {
       map = L.map('map', { zoomControl: false }).setView([22.3193, 114.1694], 13);
-
-      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(map);
-
+      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
       applyMapFilter(true);
       markersGroup = L.layerGroup().addTo(map);
-
       await fetchStylists();
     };
 
     async function fetchStylists() {
       try {
-        // 從單一資料表 stylists 撈取已審核通過的髮型師
         const { data, error } = await supabaseClient
           .from('stylists')
           .select('*')
-          .or('status.eq.approved,status.is.null'); // 防呆：相容 approved 或未設狀態的舊資料
+          .or('status.eq.approved,status.is.null');
 
-        if (error) {
-          console.error('資料庫讀取失敗:', error.message);
-          rawStylistsData = [];
-        } else {
-          rawStylistsData = data || [];
-        }
+        if (!error && data) rawStylistsData = data;
       } catch (err) {
-        console.error('發生例外錯誤:', err);
         rawStylistsData = [];
       }
-
       currentFilteredData = [...rawStylistsData];
       renderMarkers(currentFilteredData);
       renderListView(currentFilteredData);
@@ -346,35 +312,26 @@
 
     function getWhatsAppLink(phone, name) {
       const cleanPhone = String(phone).replace(/\D/g, '');
-      const rawMessage = `你好！我在【香港髮型地圖】看到 ${name} 的專頁，想查詢與預約剪髮/電染服務...`;
-      return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(rawMessage)}`;
+      return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】看到 ${name} 的專頁，想查詢預約...`)}`;
     }
 
     function applyMapFilter(dark) {
       const tileContainer = baseTileLayer.getContainer();
       if (tileContainer) {
-        if (dark) {
-          tileContainer.classList.add('dark-map-tile');
-        } else {
-          tileContainer.classList.remove('dark-map-tile');
-        }
+        if (dark) tileContainer.classList.add('dark-map-tile');
+        else tileContainer.classList.remove('dark-map-tile');
       }
     }
 
     function toggleMapTheme() {
       const themeIcon = document.getElementById('themeIcon');
       const themeText = document.getElementById('themeText');
-
       if (isDarkTheme) {
         applyMapFilter(false);
-        themeIcon.className = "fa-solid fa-moon";
-        themeText.innerText = "深色";
-        isDarkTheme = false;
+        themeIcon.className = "fa-solid fa-moon"; themeText.innerText = "深色"; isDarkTheme = false;
       } else {
         applyMapFilter(true);
-        themeIcon.className = "fa-solid fa-sun";
-        themeText.innerText = "淺色";
-        isDarkTheme = true;
+        themeIcon.className = "fa-solid fa-sun"; themeText.innerText = "淺色"; isDarkTheme = true;
       }
     }
 
@@ -383,352 +340,241 @@
 
     function renderMarkers(dataList) {
       markersGroup.clearLayers();
-
       dataList.forEach(stylist => {
         const bgColor = stylist.gender === 'F' ? '#EBBFCB' : '#89C4E6';
-
         const customIcon = L.divIcon({
           className: 'custom-pin',
-          html: `
-            <div style="background-color: ${bgColor};" class="text-zinc-950 font-bold text-xs px-2.5 py-1 rounded-full shadow-md border border-white/80 flex items-center gap-1 hover:scale-110 transition cursor-pointer">
-              <span>✂️ ${stylist.name}</span>
-            </div>
-          `,
-          iconSize: [95, 30],
-          iconAnchor: [47, 15]
+          html: `<div style="background-color: ${bgColor};" class="text-zinc-950 font-bold text-xs px-2.5 py-1 rounded-full shadow-md border border-white/80 flex items-center gap-1 hover:scale-110 transition cursor-pointer"><span>✂️ ${stylist.name}</span></div>`,
+          iconSize: [95, 30], iconAnchor: [47, 15]
         });
 
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
-        const startingPrice = stylist.price_starting || 250;
-        const igName = stylist.ig_handle || 'stylist';
 
         const popupContent = `
           <div class="w-64 p-1 text-zinc-900 bg-white">
             <div class="flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">
-                ${stylist.name ? stylist.name.charAt(0) : '✂️'}
-              </div>
+              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
               <div>
                 <h4 class="font-bold text-base text-zinc-900 leading-tight">${stylist.name}</h4>
                 <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
               </div>
             </div>
-            
             <div class="flex flex-wrap gap-1 mb-3">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200 font-medium">#${t}</span>`).join('')}
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('')}
             </div>
-
             <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
               <div>
-                <span class="text-[10px] text-zinc-400 block">門檻起步價</span>
-                <span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span>
+                <span class="text-[10px] text-zinc-400 block">起步價</span>
+                <span class="text-sm font-extrabold text-teal-600">HK$ ${stylist.price_starting || 250}</span>
               </div>
-              <div class="flex gap-1.5">
-                <a href="https://instagram.com/${igName}" target="_blank" rel="noopener noreferrer" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2.5 py-1.5 rounded-lg border border-zinc-300/80 font-medium transition flex items-center gap-1">
-                  <i class="fa-brands fa-instagram text-pink-500"></i> IG
-                </a>
-                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-3 py-1.5 rounded-lg border border-zinc-300/80 font-bold transition flex items-center gap-1">
-                  <i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約
-                </a>
+              <div class="flex gap-1">
+                <a href="${waLink}" target="_blank" class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp"></i> 預約</a>
+                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold" title="修改資料"><i class="fa-solid fa-pen"></i></button>
               </div>
             </div>
           </div>
         `;
-
-        const marker = L.marker([stylist.lat, stylist.lng], { icon: customIcon });
-        marker.bindPopup(popupContent);
-        markersGroup.addLayer(marker);
+        L.marker([stylist.lat, stylist.lng], { icon: customIcon }).addTo(markersGroup).bindPopup(popupContent);
       });
     }
 
     function renderListView(dataList) {
       const container = document.getElementById('stylistListContainer');
-      
       if (dataList.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-zinc-500">
-            <i class="fa-solid fa-scissors text-3xl mb-2 block"></i>
-            <p class="text-sm">附近暫無符合條件的髮型師</p>
-            <button onclick="resetFilters()" class="mt-3 text-xs text-teal-400 underline">一鍵重置篩選</button>
-          </div>
-        `;
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">暫無符合條件的髮型師</p></div>`;
         return;
       }
-
-      container.innerHTML = dataList.map(stylist => {
-        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
-        const genderBadgeColor = stylist.gender === 'F' ? 'bg-[#EBBFCB] text-zinc-950' : 'bg-[#89C4E6] text-zinc-950';
-        const genderLabel = stylist.gender === 'F' ? '女髮型師' : '男髮型師';
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
-        const startingPrice = stylist.price_starting || 250;
-        const igName = stylist.ig_handle || 'stylist';
-
-        return `
-          <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900 transition">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg shrink-0">
-                  ${stylist.name ? stylist.name.charAt(0) : '✂️'}
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
-                    <span class="text-[10px] ${genderBadgeColor} font-bold px-1.5 py-0.5 rounded">${genderLabel}</span>
-                  </div>
-                  <span class="text-xs bg-teal-50 text-teal-700 px-2 py-0.5 rounded border border-teal-200 font-medium">${stylist.district}</span>
-                  <span class="text-xs text-zinc-600 ml-1 font-medium">${stylist.shop_name}</span>
-                </div>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] text-zinc-400 block">門檻起步價</span>
-                <span class="text-base font-extrabold text-teal-600">HK$ ${startingPrice}</span>
+      container.innerHTML = dataList.map(stylist => `
+        <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900 transition">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
+              <div>
+                <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
+                <span class="text-xs text-teal-700">${stylist.shop_name} (${stylist.district})</span>
               </div>
             </div>
-
-            <div class="flex flex-wrap gap-1.5 mb-4">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full border border-zinc-200 font-medium">#${t}</span>`).join('')}
-            </div>
-
-            <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-              <a href="https://instagram.com/${igName}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold border border-zinc-300/80 transition">
-                <i class="fa-brands fa-instagram text-pink-500"></i> IG 作品
-              </a>
-              <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold border border-zinc-300/80 transition flex items-center justify-center gap-1">
-                <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約
-              </a>
+            <div class="text-right">
+              <span class="text-xs font-bold text-teal-600">HK$ ${stylist.price_starting} 起</span>
             </div>
           </div>
-        `;
-      }).join('');
+          <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
+            <a href="${getWhatsAppLink(stylist.whatsapp, stylist.name)}" target="_blank" class="flex-1 bg-emerald-600 text-white text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp"></i> WhatsApp 預約</a>
+            <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold border border-zinc-300"><i class="fa-solid fa-pen"></i> 修改資料</button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function applyFilters() {
-      const selectedDistrict = document.getElementById('districtFilter').value;
-
-      currentFilteredData = rawStylistsData.filter(stylist => {
-        const matchDistrict = (selectedDistrict === 'ALL') || (stylist.district === selectedDistrict);
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
-        const matchTag = (!activeTag) || (tagsArr.includes(activeTag));
-        return matchDistrict && matchTag;
-      });
-
-      renderMarkers(currentFilteredData);
-      renderListView(currentFilteredData);
-
-      if (selectedDistrict !== 'ALL' && currentFilteredData.length > 0) {
-        map.flyTo([currentFilteredData[0].lat, currentFilteredData[0].lng], 14);
-      }
+    // 開啟修改 Modal
+    function openEditModal(stylistId) {
+      targetEditingId = stylistId;
+      document.getElementById('verifyPinInput').value = '';
+      document.getElementById('editAuthStep').classList.remove('hidden');
+      document.getElementById('editForm').classList.add('hidden');
+      document.getElementById('editModal').classList.remove('hidden');
     }
 
-    function toggleTagFilter(tag) {
-      if (activeTag === tag) {
-        activeTag = null;
-      } else {
-        activeTag = tag;
-      }
-
-      document.querySelectorAll('.tag-btn').forEach(btn => {
-        if (btn.innerText.includes(tag) && activeTag === tag) {
-          btn.classList.add('bg-teal-500/20', 'border-teal-500', 'text-teal-300');
-        } else {
-          btn.classList.remove('bg-teal-500/20', 'border-teal-500', 'text-teal-300');
-        }
-      });
-
-      applyFilters();
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
     }
 
-    function resetFilters() {
-      document.getElementById('districtFilter').value = 'ALL';
-      activeTag = null;
-      document.querySelectorAll('.tag-btn').forEach(btn => {
-        btn.classList.remove('bg-teal-500/20', 'border-teal-500', 'text-teal-300');
-      });
-      applyFilters();
-      map.flyTo([22.3193, 114.1694], 13);
-    }
-
-    function toggleView() {
-      isListView = !isListView;
-      const listView = document.getElementById('listView');
-      const toggleText = document.getElementById('toggleText');
-      const toggleIcon = document.getElementById('toggleIcon');
-
-      if (isListView) {
-        listView.classList.remove('hidden');
-        toggleText.innerText = "切換為地圖視角";
-        toggleIcon.className = "fa-solid fa-map-location-dot";
-      } else {
-        listView.classList.add('hidden');
-        toggleText.innerText = "切換為列表視角";
-        toggleIcon.className = "fa-solid fa-list-ul";
-      }
-    }
-
-    function showHelpModal() { document.getElementById('helpModal').classList.remove('hidden'); }
-    function closeHelpModal() { document.getElementById('helpModal').classList.add('hidden'); }
-
-    function toggleSelectTag(btn) {
-      btn.classList.toggle('bg-teal-500/25');
-      btn.classList.toggle('border-teal-500');
-      btn.classList.toggle('text-teal-300');
-      btn.classList.toggle('selected');
-    }
-
-    function showApplyModal() {
-      document.getElementById('applyModal').classList.remove('hidden');
-      
-      setTimeout(() => {
-        if (!miniMap) {
-          miniMap = L.map('miniMap').setView([22.3175, 114.1694], 15);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
-          }).addTo(miniMap);
-
-          miniMarker = L.marker([22.3175, 114.1694], { draggable: true }).addTo(miniMap);
-
-          miniMap.on('click', function(e) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
-            miniMarker.setLatLng([lat, lng]);
-            updateCoordValues(lat, lng);
-            fetchAddressFromCoords(lat, lng);
-          });
-
-          miniMarker.on('dragend', function(e) {
-            const pos = miniMarker.getLatLng();
-            updateCoordValues(pos.lat, pos.lng);
-            fetchAddressFromCoords(pos.lat, pos.lng);
-          });
-
-          fetchAddressFromCoords(22.3175, 114.1694);
-        } else {
-          miniMap.invalidateSize();
-        }
-      }, 200);
-    }
-
-    function closeApplyModal() { document.getElementById('applyModal').classList.add('hidden'); }
-
-    function updateCoordValues(lat, lng) {
-      document.getElementById('applyLat').value = lat.toFixed(4);
-      document.getElementById('applyLng').value = lng.toFixed(4);
-    }
-
-    async function fetchAddressFromCoords(lat, lng) {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh-HK`);
-        const data = await res.json();
-        if (data && data.display_name) {
-          document.getElementById('applyAddress').value = data.display_name;
-        }
-      } catch (e) {
-        console.error('反查地址失敗', e);
-      }
-    }
-
-    async function searchAddressOnMap() {
-      const query = document.getElementById('applyAddress').value.trim();
-      if (!query) {
-        alert('請先輸入要搜尋的地址關鍵字');
-        return;
-      }
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', 香港')}&limit=1`);
-        const data = await res.json();
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat);
-          const lng = parseFloat(data[0].lon);
-          miniMap.setView([lat, lng], 16);
-          miniMarker.setLatLng([lat, lng]);
-          updateCoordValues(lat, lng);
-          alert('📍 已成功根據地址定位地圖！');
-        } else {
-          alert('找不到此地址，請嘗試輸入更明確的香港街道或大廈名稱。');
-        }
-      } catch (e) {
-        alert('地址搜尋發生錯誤，請稍後再試。');
-      }
-    }
-
-    function getGpsLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            if (miniMap && miniMarker) {
-              miniMap.setView([lat, lng], 16);
-              miniMarker.setLatLng([lat, lng]);
-              updateCoordValues(lat, lng);
-              fetchAddressFromCoords(lat, lng);
-            }
-            alert('📍 已成功取得您當前的 GPS 位置！');
-          },
-          (error) => {
-            alert('無法取得 GPS 位置，請直接在地圖上點擊選點。');
-          }
-        );
-      } else {
-        alert('您的瀏覽器不支援自動定位功能。');
-      }
-    }
-
-    // 寫入單一資料表 stylists，並帶上 status: 'pending'
-    async function submitApplication(event) {
-      event.preventDefault();
-      
-      const name = document.getElementById('applyName').value.trim();
-      const gender = document.getElementById('applyGender').value;
-      const district = document.getElementById('applyDistrict').value;
-      const shop_name = document.getElementById('applyShop').value.trim();
-      const price_starting = parseFloat(document.getElementById('applyPrice').value) || 250;
-      
-      const selectedTagBtns = document.querySelectorAll('.select-tag-btn.selected');
-      const tags = Array.from(selectedTagBtns).map(btn => btn.getAttribute('data-tag'));
-
-      if (tags.length === 0) {
-        alert('請至少勾選一個擅長風格標籤！');
+    // 驗證密碼並解鎖修改表單
+    async function verifyAndLoadEditData() {
+      const pin = document.getElementById('verifyPinInput').value.trim();
+      if (!pin) {
+        alert('請輸入編輯密碼！');
         return;
       }
 
-      const ig_handle = document.getElementById('applyIg').value.trim();
-      const whatsapp = document.getElementById('applyWa').value.trim();
-      const lat = parseFloat(document.getElementById('applyLat').value);
-      const lng = parseFloat(document.getElementById('applyLng').value);
+      try {
+        const { data, error } = await supabaseClient
+          .from('stylists')
+          .select('*')
+          .eq('id', targetEditingId)
+          .single();
 
+        if (error || !data) {
+          alert('找不到此髮型師資料');
+          return;
+        }
+
+        // 比對密碼 (若當初沒設過 pin，允許預設或比對)
+        if (data.edit_pin && data.edit_pin !== pin) {
+          alert('❌ 密碼錯誤！無法解鎖修改權限。');
+          return;
+        }
+
+        // 密碼正確，填入表單並切換畫面
+        document.getElementById('editStylistId').value = data.id;
+        document.getElementById('editName').value = data.name || '';
+        document.getElementById('editShop').value = data.shop_name || '';
+        document.getElementById('editPrice').value = data.price_starting || '';
+        document.getElementById('editIg').value = data.ig_handle || '';
+        document.getElementById('editWa').value = data.whatsapp || '';
+
+        document.getElementById('editAuthStep').classList.add('hidden');
+        document.getElementById('editForm').classList.remove('hidden');
+
+      } catch (err) {
+        alert('驗證過程發生錯誤');
+      }
+    }
+
+    // 提交修改更新
+    async function submitEditUpdate(e) {
+      e.preventDefault();
+      const id = document.getElementById('editStylistId').value;
       const payload = {
-        name,
-        gender,
-        shop_name,
-        district,
-        price_starting,
-        tags,
-        ig_handle,
-        whatsapp,
-        lat,
-        lng,
-        status: 'pending' // 寫入單一表，預設狀態待審核
+        name: document.getElementById('editName').value.trim(),
+        shop_name: document.getElementById('editShop').value.trim(),
+        price_starting: parseFloat(document.getElementById('editPrice').value),
+        ig_handle: document.getElementById('editIg').value.trim(),
+        whatsapp: document.getElementById('editWa').value.trim()
       };
 
       try {
         const { error } = await supabaseClient
           .from('stylists')
-          .insert([payload]);
+          .update(payload)
+          .eq('id', id);
 
         if (error) {
-          alert('提交失敗: ' + error.message);
+          alert('更新失敗: ' + error.message);
         } else {
-          alert('🎉 申請提交成功！管理員審核通過後將會顯示在地圖上。');
-          document.getElementById('applyForm').reset();
-          document.querySelectorAll('.select-tag-btn').forEach(b => b.classList.remove('bg-teal-500/25', 'border-teal-500', 'text-teal-300', 'selected'));
-          closeApplyModal();
+          alert('🎉 個人資料已成功更新！');
+          closeEditModal();
+          await fetchStylists(); // 重新載入地圖資料
         }
       } catch (err) {
-        console.error('提交異常:', err);
-        alert('提交時發生錯誤，請稍後再試。');
+        alert('更新發生異常');
       }
+    }
+
+    // 篩選與檢視控制
+    function applyFilters() {
+      const selectedDistrict = document.getElementById('districtFilter').value;
+      currentFilteredData = rawStylistsData.filter(s => (selectedDistrict === 'ALL' || s.district === selectedDistrict) && (!activeTag || (s.tags || []).includes(activeTag)));
+      renderMarkers(currentFilteredData);
+      renderListView(currentFilteredData);
+    }
+    function toggleTagFilter(tag) {
+      activeTag = (activeTag === tag) ? null : tag;
+      applyFilters();
+    }
+    function resetFilters() {
+      document.getElementById('districtFilter').value = 'ALL';
+      activeTag = null;
+      applyFilters();
+    }
+    function toggleView() {
+      isListView = !isListView;
+      document.getElementById('listView').classList.toggle('hidden', !isListView);
+      document.getElementById('toggleText').innerText = isListView ? "切換為地圖視角" : "切換為列表視角";
+      document.getElementById('toggleIcon').className = isListView ? "fa-solid fa-map-location-dot" : "fa-solid fa-list-ul";
+    }
+    function showHelpModal() { document.getElementById('helpModal').classList.remove('hidden'); }
+    function closeHelpModal() { document.getElementById('helpModal').classList.add('hidden'); }
+    function toggleSelectTag(btn) { btn.classList.toggle('bg-teal-500/25'); btn.classList.toggle('border-teal-500'); btn.classList.toggle('text-teal-300'); btn.classList.toggle('selected'); }
+
+    // 自薦表單送出（包含 edit_pin）
+    function showApplyModal() {
+      document.getElementById('applyModal').classList.remove('hidden');
+      setTimeout(() => {
+        if (!miniMap) {
+          miniMap = L.map('miniMap').setView([22.3175, 114.1694], 15);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(miniMap);
+          miniMarker = L.marker([22.3175, 114.1694], { draggable: true }).addTo(miniMap);
+          miniMap.on('click', e => { miniMarker.setLatLng(e.latlng); updateCoords(e.latlng.lat, e.latlng.lng); });
+          miniMarker.on('dragend', e => { const pos = miniMarker.getLatLng(); updateCoords(pos.lat, pos.lng); });
+        } else { miniMap.invalidateSize(); }
+      }, 200);
+    }
+    function closeApplyModal() { document.getElementById('applyModal').classList.add('hidden'); }
+    function updateCoords(lat, lng) {
+      document.getElementById('applyLat').value = lat.toFixed(4);
+      document.getElementById('applyLng').value = lng.toFixed(4);
+    }
+    function getGpsLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          if (miniMap && miniMarker) { miniMap.setView([lat, lng], 16); miniMarker.setLatLng([lat, lng]); updateCoords(lat, lng); }
+          alert('📍 已成功取得 GPS 位置！');
+        }, () => alert('無法取得 GPS 位置'));
+      }
+    }
+
+    async function submitApplication(e) {
+      e.preventDefault();
+      const tags = Array.from(document.querySelectorAll('.select-tag-btn.selected')).map(b => b.getAttribute('data-tag'));
+      if (tags.length === 0) { alert('請至少勾選一個風格標籤！'); return; }
+
+      const payload = {
+        name: document.getElementById('applyName').value.trim(),
+        gender: document.getElementById('applyGender').value,
+        shop_name: document.getElementById('applyShop').value.trim(),
+        district: document.getElementById('applyDistrict').value,
+        price_starting: parseFloat(document.getElementById('applyPrice').value) || 250,
+        tags: tags,
+        ig_handle: document.getElementById('applyIg').value.trim(),
+        whatsapp: document.getElementById('applyWa').value.trim(),
+        edit_pin: document.getElementById('applyPin').value.trim(), // 儲存編輯密碼
+        lat: parseFloat(document.getElementById('applyLat').value),
+        lng: parseFloat(document.getElementById('applyLng').value),
+        status: 'pending'
+      };
+
+      try {
+        const { error } = await supabaseClient.from('stylists').insert([payload]);
+        if (error) { alert('提交失敗: ' + error.message); } 
+        else {
+          alert('🎉 申請提交成功！管理員審核通過後將會顯示在地圖上。');
+          document.getElementById('applyForm').reset();
+          closeApplyModal();
+        }
+      } catch (err) { alert('提交發生異常'); }
     }
   </script>
 </body>
