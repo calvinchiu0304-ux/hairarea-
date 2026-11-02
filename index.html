@@ -365,7 +365,7 @@
         </div>
         <input type="hidden" id="applyLat" value="22.3175">
         <input type="hidden" id="applyLng" value="114.1694">
-        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">送出審核申請</button>
+        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">送出申請</button>
       </form>
     </div>
   </div>
@@ -588,7 +588,7 @@
       return cleanIg ? `https://instagram.com/${cleanIg}` : null;
     }
 
-    // 🔧 絕對安全解析 tags 的工具函數，徹底解決亂碼或格式不統一問題
+    // 🔧 絕對安全解析 tags 的工具函數，徹底解決亂碼問題
     function parseTags(tagsField) {
       if (!tagsField) return [];
       if (Array.isArray(tagsField)) {
@@ -596,12 +596,9 @@
       }
       if (typeof tagsField === 'string') {
         try {
-          // 嘗試當作 JSON 陣列解析（防範資料庫存成字串化陣列的情況）
           const parsed = JSON.parse(tagsField);
           if (Array.isArray(parsed)) return parsed;
-        } catch (e) {
-          // 若不是 JSON，則以逗號分隔
-        }
+        } catch (e) {}
         return tagsField.split(',').map(t => t.trim().replace(/^["\[\]]+|["\[\]]+$/g, '')).filter(t => t);
       }
       return [];
