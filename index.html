@@ -12,15 +12,7 @@
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            brand: {
-              50: '#f0fdfa',
-              500: '#14b8a6',
-              600: '#0d9488',
-              900: '#134e4a',
-              accent: '#f43f5e'
-            }
-          }
+          colors: { brand: { 50: '#f0fdfa', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a', accent: '#f43f5e' } }
         }
       }
     }
@@ -115,7 +107,7 @@
         <button onclick="resetFilters()" class="text-xs shrink-0 text-zinc-400 underline px-1">重置</button>
       </div>
 
-      <!-- 📢 品牌推廣橫幅 (B2B 區塊) -->
+      <!-- 📢 品牌推廣橫幅 -->
       <div class="bg-gradient-to-r from-teal-950/80 via-zinc-900 to-zinc-900 border border-teal-500/30 rounded-xl px-3 py-1.5 flex items-center justify-between text-xs shadow-md">
         <div class="flex items-center gap-2 overflow-hidden">
           <span class="bg-teal-500 text-zinc-950 font-bold px-1.5 py-0.5 rounded text-[10px] shrink-0">贊助推廣</span>
@@ -125,11 +117,10 @@
           <i class="fa-solid fa-handshake"></i> 查詢合作
         </a>
       </div>
-
     </div>
   </header>
 
-  <!-- View 1: 地圖與列表 View 主體 -->
+  <!-- View 1: 地圖與列表 -->
   <main id="mapMainView" class="relative w-full h-full">
     <div id="map"></div>
     <div id="listView" class="hidden absolute inset-0 top-[170px] bg-zinc-950/95 z-10 overflow-y-auto p-4 pb-28">
@@ -137,7 +128,7 @@
     </div>
   </main>
 
-  <!-- View 2: 🏠 上門理髮告示板 View 主體 -->
+  <!-- View 2: 🏠 上門理髮告示板 -->
   <main id="boardMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
     <div class="max-w-xl mx-auto space-y-4">
       <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
@@ -183,7 +174,7 @@
     </div>
   </div>
 
-  <!-- 📸 成為髮型模特兒報名 Modal (Base64 上傳) -->
+  <!-- 📸 成為髮型模特兒報名 Modal (附帶圖片自動壓縮防錯) -->
   <div id="modelModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-pink-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeModelModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -199,7 +190,7 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-zinc-400 mb-1"> WhatsApp 電話 *</label>
+            <label class="block text-zinc-400 mb-1">WhatsApp 電話 *</label>
             <input type="text" id="modelWa" required placeholder="85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
           </div>
           <div>
@@ -215,21 +206,21 @@
         </div>
         <div>
           <label class="block text-zinc-400 mb-1">頭髮現狀與想嘗試的造型 *</label>
-          <input type="text" id="modelHairStatus" required placeholder="例如: 黑髮未染過，想試日系電髮或空氣剪裁" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
+          <input type="text" id="modelHairStatus" required placeholder="例如: 黑髮未染過，想試日系電髮" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
         </div>
         <div>
           <label class="block text-pink-400 mb-1 font-bold">📸 上傳頭髮現狀相片 (必填) *</label>
-          <input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-pink-500 file:text-zinc-950 hover:file:bg-pink-400">
-          <p class="text-[10px] text-zinc-500 mt-1">⚠️ 請上傳清晰的頭髮/正面照，資料將由平台嚴格保密，僅供配對拍片使用。</p>
+          <input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs">
+          <p class="text-[10px] text-zinc-500 mt-1">⚠️ 系統將自動優化相片大小，確保秒速上傳成功。</p>
         </div>
-        <button type="submit" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">
+        <button type="submit" id="modelSubmitBtn" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">
           提交登記 (進入私密模特兒庫)
         </button>
       </form>
     </div>
   </div>
 
-  <!-- 🎯 顧客發布上門需求 Modal (許願池) -->
+  <!-- 🎯 顧客發布上門需求 Modal -->
   <div id="wishModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-amber-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeWishModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -287,20 +278,20 @@
       <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> 髮型師自薦加入地圖</h3>
       <form id="applyForm" onsubmit="submitApplication(event)" class="space-y-3 text-xs">
         <div>
-          <label class="block text-zinc-400 mb-1">您的稱呼 / 髮型師名字 *</label>
-          <input type="text" id="applyName" required placeholder="例如: Kenji" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+          <label class="block text-zinc-400 mb-1">您的稱呼 / 名字 *</label>
+          <input type="text" id="applyName" required placeholder="Kenji" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-zinc-400 mb-1">性別 *</label>
-            <select id="applyGender" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-              <option value="M">男髮型師 (天空藍)</option>
-              <option value="F">女髮型師 (櫻花粉)</option>
+            <select id="applyGender" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+              <option value="M">男髮型師</option>
+              <option value="F">女髮型師</option>
             </select>
           </div>
           <div>
             <label class="block text-zinc-400 mb-1">地區 *</label>
-            <select id="applyDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+            <select id="applyDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
               <option value="mongkok">旺角</option>
               <option value="cwb">銅鑼灣</option>
               <option value="tst">尖沙咀</option>
@@ -311,11 +302,11 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-zinc-400 mb-1">髮型屋名稱 *</label>
-            <input type="text" id="applyShop" required placeholder="例如: 678 Hair Salon" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+            <input type="text" id="applyShop" required placeholder="678 Hair Salon" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
           <div>
-            <label class="block text-zinc-400 mb-1">門檻起步價 (HK$) *</label>
-            <input type="number" id="applyPrice" required placeholder="380" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+            <label class="block text-zinc-400 mb-1">起步價 (HK$) *</label>
+            <input type="number" id="applyPrice" required placeholder="380" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
         </div>
         <div>
@@ -333,13 +324,13 @@
             <input type="text" id="applyIg" placeholder="kenji_hair" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
           <div>
-            <label class="block text-zinc-400 mb-1">WhatsApp 電話 *</label>
+            <label class="block text-zinc-400 mb-1">WhatsApp *</label>
             <input type="text" id="applyWa" required placeholder="85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
         </div>
         <div>
-          <label class="block text-teal-400 mb-1 font-bold">🔐 設定編輯密碼 (4-6位數字) *</label>
-          <input type="password" id="applyPin" required maxlength="6" placeholder="例如: 8888" class="w-full bg-zinc-800 border border-teal-500/60 rounded-lg px-3 py-2 text-zinc-100">
+          <label class="block text-teal-400 mb-1 font-bold">🔐 編輯密碼 (4-6位數字) *</label>
+          <input type="password" id="applyPin" required maxlength="6" placeholder="8888" class="w-full bg-zinc-800 border border-teal-500/60 rounded-lg px-3 py-2 text-zinc-100">
         </div>
         <div>
           <div class="flex items-center justify-between mb-1">
@@ -362,10 +353,10 @@
       <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i> 髮型師個人檔案修改</h3>
       
       <div id="editAuthStep" class="space-y-3 text-xs">
-        <p class="text-zinc-300">請輸入您當初自薦時設定的「編輯密碼」以解鎖修改權限：</p>
+        <p class="text-zinc-300">請輸入您當初自薦時設定的「編輯密碼」：</p>
         <div>
           <label class="block text-zinc-400 mb-1">編輯密碼 *</label>
-          <input type="password" id="verifyPinInput" placeholder="輸入 4-6 位數字密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          <input type="password" id="verifyPinInput" placeholder="輸入密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
         </div>
         <button type="button" onclick="verifyAndLoadEditData()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">驗證並載入資料</button>
       </div>
@@ -382,7 +373,7 @@
             <input type="text" id="editShop" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
           <div>
-            <label class="block text-zinc-400 mb-1">門檻起步價 (HK$) *</label>
+            <label class="block text-zinc-400 mb-1">起步價 (HK$) *</label>
             <input type="number" id="editPrice" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
           </div>
         </div>
@@ -486,43 +477,71 @@
       } catch (err) { container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">載入告示板時發生錯誤</p></div>`; }
     }
 
-    // 📸 模特兒報名與 Base64 轉換邏輯
+    // 📸 模特兒報名與 Canvas 自動壓縮相片防錯邏輯
     function showModelModal() { document.getElementById('modelModal').classList.remove('hidden'); }
     function closeModelModal() { document.getElementById('modelModal').classList.add('hidden'); }
 
     async function submitModelApplication(e) {
       e.preventDefault();
       const fileInput = document.getElementById('modelPhotoFile');
+      const submitBtn = document.getElementById('modelSubmitBtn');
       if (fileInput.files.length === 0) { alert('請上傳一張頭髮現狀相片！'); return; }
+
+      submitBtn.innerText = "相片處理與上傳中...";
+      submitBtn.disabled = true;
 
       const file = fileInput.files[0];
       const reader = new FileReader();
 
-      reader.onload = async function(event) {
-        const base64String = event.target.result; // 轉為 Base64 字串
-
-        const payload = {
-          model_name: document.getElementById('modelName').value.trim(),
-          whatsapp: document.getElementById('modelWa').value.trim(),
-          district: document.getElementById('modelDistrict').value,
-          hair_status: document.getElementById('modelHairStatus').value.trim(),
-          photo_base64: base64String
-        };
-
-        try {
-          const { error } = await supabaseClient.from('hair_models').insert([payload]);
-          if (error) {
-            alert('提交失敗: ' + error.message);
-          } else {
-            alert('🎉 模特兒登記成功！您的資料已安全收錄至私密資源庫，稍后將有專人或髮型師聯絡您。');
-            document.getElementById('modelForm').reset();
-            closeModelModal();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = async function() {
+          // Canvas 自動等比例壓縮 (最大寬高 800px，確保體系輕量化不超載)
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
           }
-        } catch (err) {
-          alert('提交發生異常');
-        }
-      };
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // 轉為高品質壓縮的 JPEG Base64
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
+          const payload = {
+            model_name: document.getElementById('modelName').value.trim(),
+            whatsapp: document.getElementById('modelWa').value.trim(),
+            district: document.getElementById('modelDistrict').value,
+            hair_status: document.getElementById('modelHairStatus').value.trim(),
+            photo_base64: compressedBase64
+          };
+
+          try {
+            const { error } = await supabaseClient.from('hair_models').insert([payload]);
+            if (error) {
+              alert('提交失敗: ' + error.message);
+            } else {
+              alert('🎉 模特兒登記成功！您的資料已安全收錄至私密資源庫。');
+              document.getElementById('modelForm').reset();
+              closeModelModal();
+            }
+          } catch (err) {
+            alert('網路連線失敗，請檢查網絡後重試。');
+          } finally {
+            submitBtn.innerText = "提交登記 (進入私密模特兒庫)";
+            submitBtn.disabled = false;
+          }
+        };
+      };
       reader.readAsDataURL(file);
     }
 
@@ -539,13 +558,19 @@
         preferred_date: document.getElementById('wishDate').value.trim(),
         notes: document.getElementById('wishNotes').value.trim()
       };
-      const { error } = await supabaseClient.from('home_service_requests').insert([payload]);
-      if (error) alert('發布失敗: ' + error.message);
-      else {
-        alert('🎉 上門需求發布成功！');
-        document.getElementById('wishForm').reset();
-        closeWishModal();
-        switchMainTab('board');
+      
+      try {
+        const { error } = await supabaseClient.from('home_service_requests').insert([payload]);
+        if (error) {
+          alert('發布失敗: ' + error.message);
+        } else {
+          alert('🎉 上門需求發布成功！');
+          document.getElementById('wishForm').reset();
+          closeWishModal();
+          switchMainTab('board');
+        }
+      } catch (err) {
+        alert('網路連線異常，請檢查網絡後重試。');
       }
     }
 
