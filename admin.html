@@ -39,7 +39,7 @@
       <div id="adminStylistList" class="space-y-3 text-xs"></div>
     </div>
 
-    <!-- 區塊 2：私密模特兒資源庫 (只有你看得到) -->
+    <!-- 區塊 2：私密模特兒資源庫 -->
     <div id="sectionModels" class="hidden bg-zinc-900 border border-pink-500/40 rounded-2xl p-5 shadow-xl space-y-4">
       <div class="flex items-center justify-between">
         <div>
@@ -48,6 +48,15 @@
         </div>
       </div>
       <div id="adminModelList" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- 🔍 圖片放大 Modal（頁面內燈箱，解決跳轉黑畫面問題） -->
+  <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer" onclick="closeImageViewer()">
+    <div class="relative max-w-3xl max-h-[90vh] flex flex-col items-center justify-center">
+      <button onclick="closeImageViewer()" class="absolute -top-10 right-0 text-white text-2xl font-bold hover:text-pink-400"><i class="fa-solid fa-xmark"></i> 關閉</button>
+      <img id="modalFullImage" src="" class="max-w-full max-h-[85vh] object-contain rounded-xl border border-zinc-700 shadow-2xl">
+      <p class="text-zinc-400 text-xs mt-2">點擊任意處即可關閉放大視窗</p>
     </div>
   </div>
 
@@ -118,13 +127,22 @@
                 <i class="fa-brands fa-whatsapp"></i> 聯繫Model
               </a>
             </div>
-            ${m.photo_base64 ? `<div class="mt-2"><span class="text-[10px] text-zinc-500 block mb-1">頭髮/素人相片預覽：</span><img src="${m.photo_base64}" class="w-32 h-32 object-cover rounded-lg border border-zinc-700 cursor-pointer hover:scale-105 transition" onclick="window.open(this.src)" title="點擊放大圖片"></div>` : ''}
+            ${m.photo_base64 ? `<div class="mt-2"><span class="text-[10px] text-zinc-500 block mb-1">頭髮/素人相片預覽（點擊放大）：</span><img src="${m.photo_base64}" class="w-32 h-32 object-cover rounded-lg border border-zinc-700 cursor-pointer hover:border-pink-500 hover:scale-105 transition" onclick="zoomImage(this.src)" title="點擊全螢幕放大檢視"></div>` : ''}
             <div class="flex justify-end pt-2 border-t border-zinc-900">
               <button onclick="deleteModel(${m.id})" class="text-red-400 hover:text-red-300 text-[11px] underline">刪除此筆記錄</button>
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    // 🔍 燈箱圖片放大檢視邏輯
+    function zoomImage(src) {
+      document.getElementById('modalFullImage').src = src;
+      document.getElementById('imageViewerModal').classList.remove('hidden');
+    }
+    function closeImageViewer() {
+      document.getElementById('imageViewerModal').classList.add('hidden');
     }
 
     async function deleteStylist(id) {
