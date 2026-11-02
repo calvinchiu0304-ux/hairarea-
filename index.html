@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>香港髮型地圖 Hair Map HK | 認人不認店·極速搵髮型師</title>
 
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,14 +17,9 @@
     }
   </script>
 
-  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- FontAwesome Icons CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -33,20 +27,13 @@
     .dark-map-tile { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
     .leaflet-marker-pane, .leaflet-popup-pane { filter: none !important; }
     .leaflet-popup-content-wrapper {
-      background: #ffffff !important; 
-      color: #18181b !important;
-      border-radius: 16px !important; 
-      padding: 0 !important;
-      overflow: hidden !important;
-      border: 1px solid #e4e4e7 !important;
+      background: #ffffff !important; color: #18181b !important;
+      border-radius: 16px !important; padding: 0 !important;
+      overflow: hidden !important; border: 1px solid #e4e4e7 !important;
       box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.3) !important;
     }
     .leaflet-popup-tip { background: #ffffff !important; }
-    .leaflet-popup-content { 
-      margin: 14px !important; 
-      min-width: 220px !important; 
-      line-height: 1.4 !important;
-    }
+    .leaflet-popup-content { margin: 14px !important; min-width: 220px !important; line-height: 1.4 !important; }
     .leaflet-control-zoom { display: none !important; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -59,44 +46,28 @@
     <div class="max-w-7xl mx-auto flex flex-col gap-2">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 shrink-0">
-          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-md">
-            ✂️
-          </div>
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-md">✂️</div>
           <h1 class="font-bold text-xs tracking-wide flex items-center gap-1">
             香港髮型地圖 <span class="text-[10px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded border border-teal-500/30 font-normal">生態版</span>
           </h1>
         </div>
         
         <div class="flex items-center gap-1 shrink-0">
-          <button onclick="showModelModal()" class="text-[11px] bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-camera"></i> Model
-          </button>
-          <button onclick="showWishModal()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> 許願池
-          </button>
-          <button onclick="showApplyModal()" class="text-[11px] bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
-            <i class="fa-solid fa-user-plus"></i> 自薦
-          </button>
-          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 p-1.5 rounded-lg transition">
-            <i class="fa-solid fa-sun" id="themeIcon"></i>
-          </button>
-          <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition p-1">
-            <i class="fa-solid fa-lock"></i>
-          </a>
+          <button onclick="showModelModal()" class="text-[11px] bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-camera"></i> Model</button>
+          <button onclick="showWishModal()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-wand-magic-sparkles"></i> 許願池</button>
+          <button onclick="showApplyModal()" class="text-[11px] bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-user-plus"></i> 自薦</button>
+          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 p-1.5 rounded-lg transition"><i class="fa-solid fa-sun" id="themeIcon"></i></button>
+          <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition p-1"><i class="fa-solid fa-lock"></i></a>
         </div>
       </div>
 
-      <!-- 功能切換列：地圖 / 上門告示板 -->
+      <!-- 功能切換列 -->
       <div class="flex items-center gap-2 border-b border-zinc-800/80 pb-1.5">
-        <button id="tabMapBtn" onclick="switchMainTab('map')" class="text-xs px-3 py-1 rounded-lg font-bold bg-teal-500 text-zinc-950 transition flex items-center gap-1">
-          <i class="fa-solid fa-map-location-dot"></i> 📍 髮型師地圖
-        </button>
-        <button id="tabBoardBtn" onclick="switchMainTab('board')" class="text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1">
-          <i class="fa-solid fa-house-chimney-user"></i> 🏠 上門理髮告示板
-        </button>
+        <button id="tabMapBtn" onclick="switchMainTab('map')" class="text-xs px-3 py-1 rounded-lg font-bold bg-teal-500 text-zinc-950 transition flex items-center gap-1"><i class="fa-solid fa-map-location-dot"></i> 📍 髮型師地圖</button>
+        <button id="tabBoardBtn" onclick="switchMainTab('board')" class="text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1"><i class="fa-solid fa-house-chimney-user"></i> 🏠 上門理髮告示板</button>
       </div>
 
-      <!-- 地圖專用篩選列 -->
+      <!-- 地圖篩選列 -->
       <div id="mapFilterRow" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
         <select id="districtFilter" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-teal-500">
           <option value="ALL">📍 全部地區</option>
@@ -118,9 +89,7 @@
           <span class="bg-teal-500 text-zinc-950 font-bold px-1.5 py-0.5 rounded text-[10px] shrink-0">贊助推廣</span>
           <p class="text-teal-300 truncate font-medium">🔥 專業髮品代理商招募中：解鎖全港髮型師精準曝光，立即聯絡合作！</p>
         </div>
-        <a href="https://api.whatsapp.com/send?phone=85291234567&text=你好，我想查詢【香港髮型地圖】的品牌贊助與推廣合作方案..." target="_blank" class="shrink-0 bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/40 px-2 py-0.5 rounded-lg font-bold transition flex items-center gap-1 text-[11px]">
-          <i class="fa-solid fa-handshake"></i> 查詢合作
-        </a>
+        <a href="https://api.whatsapp.com/send?phone=85291234567&text=你好，我想查詢【香港髮型地圖】的品牌贊助與推廣合作方案..." target="_blank" class="shrink-0 bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/40 px-2 py-0.5 rounded-lg font-bold transition flex items-center gap-1 text-[11px]"><i class="fa-solid fa-handshake"></i> 查詢合作</a>
       </div>
     </div>
   </header>
@@ -138,17 +107,12 @@
     <div class="max-w-xl mx-auto space-y-4">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
         <div>
-          <h2 class="font-bold text-base text-amber-400 flex items-center gap-2">
-            <i class="fa-solid fa-house-chimney-user"></i> 髮型師上門接單告示板
-          </h2>
+          <h2 class="font-bold text-base text-amber-400 flex items-center gap-2"><i class="fa-solid fa-house-chimney-user"></i> 髮型師上門接單告示板</h2>
           <p class="text-xs text-zinc-400 mt-0.5">根據地區精準篩選顧客需求，一鍵 WhatsApp 聯繫報價接單！</p>
         </div>
-        <button onclick="showWishModal()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold px-3 py-2 rounded-xl transition shrink-0 active:scale-95 shadow-md">
-          🙋 我要許願 (發布需求)
-        </button>
+        <button onclick="showWishModal()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold px-3 py-2 rounded-xl transition shrink-0 active:scale-95 shadow-md">🙋 我要許願 (發布需求)</button>
       </div>
 
-      <!-- 📍 地區篩選列 -->
       <div class="flex items-center gap-2 bg-zinc-900/80 border border-zinc-800 p-2.5 rounded-xl">
         <span class="text-xs text-zinc-400 font-bold pl-1"><i class="fa-solid fa-filter"></i> 篩選地區：</span>
         <select id="boardDistrictFilter" onchange="filterBoardRequests()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-amber-500">
@@ -165,7 +129,7 @@
     </div>
   </main>
 
-  <!-- 右側控制與切換檢視 -->
+  <!-- 控制按鈕 -->
   <div id="floatingMapControls" class="fixed right-4 bottom-28 z-30 flex flex-col gap-2">
     <button onclick="zoomInMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95"><i class="fa-solid fa-plus"></i></button>
     <button onclick="zoomOutMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95"><i class="fa-solid fa-minus"></i></button>
@@ -179,13 +143,13 @@
     </button>
   </div>
 
-  <!-- 說明彈窗 Modal -->
+  <!-- 說明 Modals -->
   <div id="helpModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-5 relative shadow-2xl">
       <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-bold text-teal-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> 關於香港髮型地圖</h3>
       <div class="text-xs text-zinc-300 space-y-2.5 leading-relaxed">
-        <p>✨ <strong>認人不認店：</strong> 專為香港人而設，搜尋髮型師個人專頁與真實在地作品。</p>
+        <p>✨ <strong>認人不認店：</strong> 專為香港人而設，搜尋髮型師個人專頁與真在地作品。</p>
         <p>📸 <strong>模特兒招募：</strong> 素人免費/優惠變身登記，協助髮型師優質拍片。</p>
         <p>🔑 <strong>自主密碼修改：</strong> 髮型師可憑自訂密碼隨時更新資料。</p>
       </div>
@@ -193,139 +157,54 @@
     </div>
   </div>
 
-  <!-- 📸 成為髮型模特兒報名 Modal -->
   <div id="modelModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-pink-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeModelModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-base font-bold text-pink-400 mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-camera"></i> 登記成為髮型模特兒 (免費變身)
-      </h3>
-      <p class="text-xs text-zinc-400 mb-3">填寫資料並上傳頭髮現狀相片，平台將為您配給專業髮型師免費或優惠試做！</p>
-      
+      <h3 class="text-base font-bold text-pink-400 mb-2 flex items-center gap-2"><i class="fa-solid fa-camera"></i> 登記成為髮型模特兒</h3>
       <form id="modelForm" onsubmit="submitModelApplication(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-zinc-400 mb-1">您的稱呼 *</label>
-          <input type="text" id="modelName" required placeholder="例如: Jennie / Alex" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
-        </div>
+        <div><label class="block text-zinc-400 mb-1">您的稱呼 *</label><input type="text" id="modelName" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">WhatsApp 電話 *</label>
-            <input type="text" id="modelWa" required placeholder="85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">所在地區 *</label>
-            <select id="modelDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
-              <option value="旺角">旺角</option>
-              <option value="銅鑼灣">銅鑼灣</option>
-              <option value="尖沙咀">尖沙咀</option>
-              <option value="沙田">沙田</option>
-              <option value="其他地區">其他地區</option>
-            </select>
-          </div>
+          <div><label class="block text-zinc-400 mb-1">WhatsApp 電話 *</label><input type="text" id="modelWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">所在地區 *</label><select id="modelDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"><option value="旺角">旺角</option><option value="銅鑼灣">銅鑼灣</option><option value="尖沙咀">尖沙咀</option><option value="沙田">沙田</option><option value="其他地區">其他地區</option></select></div>
         </div>
-        <div>
-          <label class="block text-zinc-400 mb-1">頭髮現狀與想嘗試的造型 *</label>
-          <input type="text" id="modelHairStatus" required placeholder="例如: 黑髮未染過，想試日系電髮" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-pink-500">
-        </div>
-        <div>
-          <label class="block text-pink-400 mb-1 font-bold">📸 上傳頭髮現狀相片 (必填) *</label>
-          <input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs">
-        </div>
-        <button type="submit" id="modelSubmitBtn" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">
-          提交登記 (進入私密模特兒庫)
-        </button>
+        <div><label class="block text-zinc-400 mb-1">頭髮現狀 *</label><input type="text" id="modelHairStatus" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        <div><label class="block text-pink-400 mb-1 font-bold">📸 上傳頭髮現狀相片 *</label><input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs"></div>
+        <button type="submit" id="modelSubmitBtn" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">提交登記</button>
       </form>
     </div>
   </div>
 
-  <!-- 🎯 顧客發布上門需求 Modal -->
   <div id="wishModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-amber-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeWishModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-base font-bold text-amber-400 mb-3 flex items-center gap-2">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> 發布上門理髮需求 (許願)
-      </h3>
+      <h3 class="text-base font-bold text-amber-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> 發布上門理髮需求</h3>
       <form id="wishForm" onsubmit="submitWishRequest(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-zinc-400 mb-1">您的稱呼 *</label>
-          <input type="text" id="wishName" required placeholder="例如: 陳小姐 / 張先生" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
-        </div>
+        <div><label class="block text-zinc-400 mb-1">您的稱呼 *</label><input type="text" id="wishName" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">地區 *</label>
-            <select id="wishDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
-              <option value="旺角">旺角</option>
-              <option value="銅鑼灣">銅鑼灣</option>
-              <option value="尖沙咀">尖沙咀</option>
-              <option value="沙田">沙田</option>
-              <option value="其他地區">其他地區</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">服務類型 *</label>
-            <select id="wishServiceType" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
-              <option value="長者理髮">長者理髮</option>
-              <option value="行動不便">行動不便/病患</option>
-              <option value="一般上門造型">一般上門造型</option>
-            </select>
-          </div>
+          <div><label class="block text-zinc-400 mb-1">地區 *</label><select id="wishDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"><option value="旺角">旺角</option><option value="銅鑼灣">銅鑼灣</option><option value="尖沙咀">尖沙咀</option><option value="沙田">沙田</option><option value="其他地區">其他地區</option></select></div>
+          <div><label class="block text-zinc-400 mb-1">服務類型 *</label><select id="wishServiceType" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"><option value="長者理髮">長者理髮</option><option value="行動不便">行動不便/病患</option><option value="一般上門造型">一般上門造型</option></select></div>
         </div>
-        <div>
-          <label class="block text-zinc-400 mb-1">聯絡 WhatsApp 電話 *</label>
-          <input type="text" id="wishWa" required placeholder="85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
-        </div>
-        <div>
-          <label class="block text-zinc-400 mb-1">期望日期/時間</label>
-          <input type="text" id="wishDate" placeholder="例如: 本週六下午" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500">
-        </div>
-        <div>
-          <label class="block text-zinc-400 mb-1">備註說明</label>
-          <textarea id="wishNotes" rows="2" placeholder="詳細地址或特殊需求..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500"></textarea>
-        </div>
-        <button type="submit" class="w-full mt-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
-          確認提交需求
-        </button>
+        <div><label class="block text-zinc-400 mb-1">聯絡 WhatsApp *</label><input type="text" id="wishWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        <div><label class="block text-zinc-400 mb-1">期望日期/時間</label><input type="text" id="wishDate" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        <div><label class="block text-zinc-400 mb-1">備註說明</label><textarea id="wishNotes" rows="2" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></textarea></div>
+        <button type="submit" class="w-full mt-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">確認提交需求</button>
       </form>
     </div>
   </div>
 
-  <!-- 髮型師自薦表單 Modal -->
   <div id="applyModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeApplyModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> 髮型師自薦加入地圖</h3>
       <form id="applyForm" onsubmit="submitApplication(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-zinc-400 mb-1">您的稱呼 / 名字 *</label>
-          <input type="text" id="applyName" required placeholder="Kenji" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+        <div><label class="block text-zinc-400 mb-1">您的稱呼 / 名字 *</label><input type="text" id="applyName" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-zinc-400 mb-1">性別 *</label><select id="applyGender" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"><option value="M">男髮型師</option><option value="F">女髮型師</option></select></div>
+          <div><label class="block text-zinc-400 mb-1">地區 *</label><select id="applyDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"><option value="mongkok">旺角</option><option value="cwb">銅鑼灣</option><option value="tst">尖沙咀</option><option value="shatin">沙田</option></select></div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">性別 *</label>
-            <select id="applyGender" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-              <option value="M">男髮型師</option>
-              <option value="F">女髮型師</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">地區 *</label>
-            <select id="applyDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-              <option value="mongkok">旺角</option>
-              <option value="cwb">銅鑼灣</option>
-              <option value="tst">尖沙咀</option>
-              <option value="shatin">沙田</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">髮型屋名稱 *</label>
-            <input type="text" id="applyShop" required placeholder="678 Hair Salon" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">起步價 (HK$) *</label>
-            <input type="number" id="applyPrice" required placeholder="380" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
+          <div><label class="block text-zinc-400 mb-1">髮型屋名稱 *</label><input type="text" id="applyShop" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">起步價 (HK$) *</label><input type="number" id="applyPrice" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         </div>
         <div>
           <label class="block text-zinc-400 mb-1.5">擅長風格標籤 *</label>
@@ -337,73 +216,39 @@
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">Instagram 帳號</label>
-            <input type="text" id="applyIg" placeholder="kenji_hair" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">WhatsApp *</label>
-            <input type="text" id="applyWa" required placeholder="85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
+          <div><label class="block text-zinc-400 mb-1">Instagram 帳號</label><input type="text" id="applyIg" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">WhatsApp *</label><input type="text" id="applyWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         </div>
+        <div><label class="block text-teal-400 mb-1 font-bold">🔐 編輯密碼 (4-6位數字) *</label><input type="password" id="applyPin" required maxlength="6" class="w-full bg-zinc-800 border border-teal-500/60 rounded-lg px-3 py-2 text-zinc-100"></div>
         <div>
-          <label class="block text-teal-400 mb-1 font-bold">🔐 編輯密碼 (4-6位數字) *</label>
-          <input type="password" id="applyPin" required maxlength="6" placeholder="8888" class="w-full bg-zinc-800 border border-teal-500/60 rounded-lg px-3 py-2 text-zinc-100">
-        </div>
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-zinc-400">📍 點擊地圖設定店舖位置 *</label>
-            <button type="button" onclick="getGpsLocation()" class="text-[10px] text-teal-400 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded">使用 GPS</button>
-          </div>
+          <div class="flex items-center justify-between mb-1"><label class="text-zinc-400">📍 點擊地圖設定位置 *</label><button type="button" onclick="getGpsLocation()" class="text-[10px] text-teal-400 bg-teal-500/10 border border-teal-500/30 px-2 py-0.5 rounded">使用 GPS</button></div>
           <div id="miniMap" class="w-full h-32 rounded-xl border border-zinc-700 z-0 mb-2"></div>
         </div>
-        <input type="hidden" id="applyLat" value="22.3175">
-        <input type="hidden" id="applyLng" value="114.1694">
+        <input type="hidden" id="applyLat" value="22.3175"><input type="hidden" id="applyLng" value="114.1694">
         <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">送出審核申請</button>
       </form>
     </div>
   </div>
 
-  <!-- 髮型師修改資料 Modal -->
   <div id="editModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeEditModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i> 髮型師個人檔案修改</h3>
-      
       <div id="editAuthStep" class="space-y-3 text-xs">
-        <p class="text-zinc-300">請輸入您當初自薦時設定的「編輯密碼」：</p>
-        <div>
-          <label class="block text-zinc-400 mb-1">編輯密碼 *</label>
-          <input type="password" id="verifyPinInput" placeholder="輸入密碼" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-        </div>
-        <button type="button" onclick="verifyAndLoadEditData()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">驗證並載入資料</button>
+        <p class="text-zinc-300">請輸入密碼：</p>
+        <input type="password" id="verifyPinInput" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+        <button type="button" onclick="verifyAndLoadEditData()" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">驗證並載入</button>
       </div>
-
       <form id="editForm" onsubmit="submitEditUpdate(event)" class="space-y-3 text-xs hidden">
         <input type="hidden" id="editStylistId">
-        <div>
-          <label class="block text-zinc-400 mb-1">您的稱呼 / 名字 *</label>
-          <input type="text" id="editName" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+        <div><label class="block text-zinc-400 mb-1">您的稱呼 *</label><input type="text" id="editName" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-zinc-400 mb-1">髮型屋名稱 *</label><input type="text" id="editShop" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">起步價 (HK$) *</label><input type="number" id="editPrice" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">髮型屋名稱 *</label>
-            <input type="text" id="editShop" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">起步價 (HK$) *</label>
-            <input type="number" id="editPrice" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">Instagram 帳號</label>
-            <input type="text" id="editIg" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">WhatsApp *</label>
-            <input type="text" id="editWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
-          </div>
+          <div><label class="block text-zinc-400 mb-1">Instagram</label><input type="text" id="editIg" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">WhatsApp *</label><input type="text" id="editWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         </div>
         <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">儲存更新資料</button>
       </form>
@@ -435,6 +280,26 @@
       await fetchHomeServiceBoard();
     };
 
+    // 📊 關鍵追蹤函式：雙重保險 (RPC + Direct Update)
+    async function trackClick(stylistId, type) {
+      if (!stylistId) return;
+      try {
+        const rpcName = type === 'wa' ? 'increment_wa_click' : 'increment_ig_click';
+        const { error } = await supabaseClient.rpc(rpcName, { stylist_id: parseInt(stylistId) });
+        if (error) {
+          // 備用方案：RPC 失敗時直接 update 欄位
+          const { data } = await supabaseClient.from('stylists').select('wa_clicks, ig_clicks').eq('id', stylistId).single();
+          if (data) {
+            const currentVal = type === 'wa' ? (data.wa_clicks || 0) : (data.ig_clicks || 0);
+            const updateObj = type === 'wa' ? { wa_clicks: currentVal + 1 } : { ig_clicks: currentVal + 1 };
+            await supabaseClient.from('stylists').update(updateObj).eq('id', stylistId);
+          }
+        }
+      } catch (e) {
+        console.error('Track error:', e);
+      }
+    }
+
     function switchMainTab(tab) {
       const mapMainView = document.getElementById('mapMainView');
       const boardMainView = document.getElementById('boardMainView');
@@ -445,19 +310,13 @@
       const floatingToggleBtn = document.getElementById('floatingToggleBtn');
 
       if (tab === 'map') {
-        mapMainView.classList.remove('hidden');
-        boardMainView.classList.add('hidden');
-        mapFilterRow.classList.remove('hidden');
-        floatingMapControls.classList.remove('hidden');
-        floatingToggleBtn.classList.remove('hidden');
+        mapMainView.classList.remove('hidden'); boardMainView.classList.add('hidden');
+        mapFilterRow.classList.remove('hidden'); floatingMapControls.classList.remove('hidden'); floatingToggleBtn.classList.remove('hidden');
         tabMapBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-teal-500 text-zinc-950 transition flex items-center gap-1";
         tabBoardBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1";
       } else {
-        mapMainView.classList.add('hidden');
-        boardMainView.classList.remove('hidden');
-        mapFilterRow.classList.add('hidden');
-        floatingMapControls.classList.add('hidden');
-        floatingToggleBtn.classList.add('hidden');
+        mapMainView.classList.add('hidden'); boardMainView.classList.remove('hidden');
+        mapFilterRow.classList.add('hidden'); floatingMapControls.classList.add('hidden'); floatingToggleBtn.classList.add('hidden');
         tabBoardBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-amber-500 text-zinc-950 transition flex items-center gap-1";
         tabMapBtn.className = "text-xs px-3 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition flex items-center gap-1";
         fetchHomeServiceBoard();
@@ -467,13 +326,9 @@
     async function fetchHomeServiceBoard() {
       try {
         const { data, error } = await supabaseClient.from('home_service_requests').select('*').order('created_at', { ascending: false });
-        if (error) { rawBoardData = []; }
-        else { rawBoardData = data || []; }
+        rawBoardData = error ? [] : (data || []);
         filterBoardRequests();
-      } catch (err) {
-        rawBoardData = [];
-        filterBoardRequests();
-      }
+      } catch (err) { rawBoardData = []; filterBoardRequests(); }
     }
 
     function filterBoardRequests() {
@@ -496,9 +351,7 @@
                 <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">${req.service_type || '上門理髮'}</span>
                 <h3 class="font-bold text-base text-zinc-100 mt-1">${req.customer_name} 📍 ${req.district}</h3>
               </div>
-              <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1 shrink-0 active:scale-95 shadow-md">
-                <i class="fa-brands fa-whatsapp text-sm"></i> 一鍵接單報價
-              </a>
+              <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1 shrink-0 active:scale-95 shadow-md"><i class="fa-brands fa-whatsapp text-sm"></i> 一鍵接單報價</a>
             </div>
             <div class="text-xs text-zinc-300 space-y-1 bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-800/80">
               <p>🗓️ <strong>期望時間：</strong> ${req.preferred_date || '彈性/待議'}</p>
@@ -561,7 +414,6 @@
       else { alert('🎉 上門需求發布成功！'); document.getElementById('wishForm').reset(); closeWishModal(); fetchHomeServiceBoard(); }
     }
 
-    // 🔒 關鍵修正：只抓取已審批（approved 或 null）的髮型師，未審批的 pending 絕對不會在地圖上出現
     async function fetchStylists() {
       try {
         const { data } = await supabaseClient.from('stylists').select('*').or('status.eq.approved,status.is.null');
@@ -614,11 +466,8 @@
         const igUrl = getIgLink(stylist.ig_handle);
         
         let tagsArr = [];
-        if (Array.isArray(stylist.tags)) {
-          tagsArr = stylist.tags;
-        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
-          tagsArr = stylist.tags.split(',').map(t => t.trim());
-        }
+        if (Array.isArray(stylist.tags)) { tagsArr = stylist.tags; }
+        else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') { tagsArr = stylist.tags.split(',').map(t => t.trim()); }
         
         const startingPrice = stylist.price_starting || 250;
         
@@ -637,9 +486,8 @@
             <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
               <div><span class="text-[10px] text-zinc-400 block">起步價</span><span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
               <div class="flex gap-1 items-center">
-                <!-- 🎨 IG 按鈕顏色已對齊 WhatsApp 按鈕樣式 -->
-                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600"></i> IG</a>` : ''}
-                <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
+                ${igUrl ? `<a href="${igUrl}" target="_blank" onclick="trackClick(${stylist.id}, 'ig')" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600"></i> IG</a>` : ''}
+                <a href="${waLink}" target="_blank" onclick="trackClick(${stylist.id}, 'wa')" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
                 <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
               </div>
             </div>
@@ -656,11 +504,8 @@
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const igUrl = getIgLink(stylist.ig_handle);
         let tagsArr = [];
-        if (Array.isArray(stylist.tags)) {
-          tagsArr = stylist.tags;
-        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
-          tagsArr = stylist.tags.split(',').map(t => t.trim());
-        }
+        if (Array.isArray(stylist.tags)) { tagsArr = stylist.tags; }
+        else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') { tagsArr = stylist.tags.split(',').map(t => t.trim()); }
         return `
           <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900">
             <div class="flex items-start justify-between mb-3">
@@ -677,9 +522,8 @@
               ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('')}
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-              <!-- 🎨 IG 按鈕顏色已對齊 WhatsApp 按鈕樣式 -->
-              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600 text-sm"></i> IG</a>` : ''}
-              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> WhatsApp 預約</a>
+              ${igUrl ? `<a href="${igUrl}" target="_blank" onclick="trackClick(${stylist.id}, 'ig')" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600 text-sm"></i> IG</a>` : ''}
+              <a href="${waLink}" target="_blank" onclick="trackClick(${stylist.id}, 'wa')" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> WhatsApp 預約</a>
               <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold"><i class="fa-solid fa-pen"></i></button>
             </div>
           </div>
@@ -753,7 +597,6 @@
       e.preventDefault();
       const tags = Array.from(document.querySelectorAll('.select-tag-btn.selected')).map(b => b.getAttribute('data-tag'));
       if (tags.length === 0) { alert('請至少勾選一個風格標籤！'); return; }
-      
       const payload = {
         name: document.getElementById('applyName').value.trim(),
         gender: document.getElementById('applyGender').value,
@@ -768,20 +611,11 @@
         lng: parseFloat(document.getElementById('applyLng').value),
         status: 'pending'
       };
-
       try {
         const { error } = await supabaseClient.from('stylists').insert([payload]);
-        if (error) {
-          alert('❌ 提交失敗: ' + error.message);
-        } else {
-          alert('🎉 申請提交成功！已送至後台審核');
-          document.getElementById('applyForm').reset();
-          closeApplyModal();
-          await fetchStylists();
-        }
-      } catch (err) {
-        alert('❌ 系統發生錯誤: ' + err.message);
-      }
+        if (error) { alert('❌ 提交失敗: ' + error.message); }
+        else { alert('🎉 申請提交成功！已送至後台審核'); document.getElementById('applyForm').reset(); closeApplyModal(); await fetchStylists(); }
+      } catch (err) { alert('❌ 系統錯誤: ' + err.message); }
     }
   </script>
 </body>
