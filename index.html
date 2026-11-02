@@ -32,8 +32,6 @@
     #map { height: 100vh; width: 100%; z-index: 1; background-color: #18181b; }
     .dark-map-tile { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
     .leaflet-marker-pane, .leaflet-popup-pane { filter: none !important; }
-    
-    /* 🔴 徹底鎖死彈出視窗外殼，絕不變形或跑版 */
     .leaflet-popup-content-wrapper {
       background: #ffffff !important; 
       color: #18181b !important;
@@ -45,9 +43,8 @@
     }
     .leaflet-popup-tip { background: #ffffff !important; }
     .leaflet-popup-content { 
-      margin: 0 !important; 
-      width: 240px !important;
-      max-width: 240px !important;
+      margin: 14px !important; 
+      min-width: 220px !important; 
       line-height: 1.4 !important;
     }
     .leaflet-control-zoom { display: none !important; }
@@ -65,11 +62,9 @@
           <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-md">
             ✂️
           </div>
-          <div>
-            <h1 class="font-bold text-xs tracking-wide flex items-center gap-1">
-              香港髮型地圖 <span class="text-[10px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded border border-teal-500/30 font-normal">生態平台版</span>
-            </h1>
-          </div>
+          <h1 class="font-bold text-xs tracking-wide flex items-center gap-1">
+            香港髮型地圖 <span class="text-[10px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded border border-teal-500/30 font-normal">生態版</span>
+          </h1>
         </div>
         
         <div class="flex items-center gap-1 shrink-0">
@@ -235,7 +230,6 @@
         <div>
           <label class="block text-pink-400 mb-1 font-bold">📸 上傳頭髮現狀相片 (必填) *</label>
           <input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs">
-          <p class="text-[10px] text-zinc-500 mt-1">⚠️ 系統將自動優化相片大小，確保秒速上傳成功。</p>
         </div>
         <button type="submit" id="modelSubmitBtn" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">
           提交登記 (進入私密模特兒庫)
@@ -365,7 +359,7 @@
         </div>
         <input type="hidden" id="applyLat" value="22.3175">
         <input type="hidden" id="applyLng" value="114.1694">
-        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">送出申請</button>
+        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">送出審核申請</button>
       </form>
     </div>
   </div>
@@ -567,9 +561,10 @@
       else { alert('🎉 上門需求發布成功！'); document.getElementById('wishForm').reset(); closeWishModal(); fetchHomeServiceBoard(); }
     }
 
+    // 🔒 關鍵修正：只抓取已審批（approved 或 null）的髮型師，未審批的 pending 絕對不會在地圖上出現
     async function fetchStylists() {
       try {
-        const { data } = await supabaseClient.from('stylists').select('*');
+        const { data } = await supabaseClient.from('stylists').select('*').or('status.eq.approved,status.is.null');
         rawStylistsData = data || [];
       } catch (err) { rawStylistsData = []; }
       currentFilteredData = [...rawStylistsData];
@@ -586,22 +581,6 @@
       if (!igHandle) return null;
       const cleanIg = String(igHandle).replace('@', '').trim();
       return cleanIg ? `https://instagram.com/${cleanIg}` : null;
-    }
-
-    // 🔧 絕對安全解析 tags 的工具函數，徹底解決亂碼問題
-    function parseTags(tagsField) {
-      if (!tagsField) return [];
-      if (Array.isArray(tagsField)) {
-        return tagsField;
-      }
-      if (typeof tagsField === 'string') {
-        try {
-          const parsed = JSON.parse(tagsField);
-          if (Array.isArray(parsed)) return parsed;
-        } catch (e) {}
-        return tagsField.split(',').map(t => t.trim().replace(/^["\[\]]+|["\[\]]+$/g, '')).filter(t => t);
-      }
-      return [];
     }
 
     function applyMapFilter(dark) {
@@ -633,31 +612,35 @@
         
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const igUrl = getIgLink(stylist.ig_handle);
-        const tagsArr = parseTags(stylist.tags);
+        
+        let tagsArr = [];
+        if (Array.isArray(stylist.tags)) {
+          tagsArr = stylist.tags;
+        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
+          tagsArr = stylist.tags.split(',').map(t => t.trim());
+        }
+        
         const startingPrice = stylist.price_starting || 250;
         
         const popupContent = `
-          <div class="p-3 text-zinc-900 bg-white w-[240px]">
-            <div class="flex items-center gap-3 mb-2.5">
-              <div class="w-10 h-10 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-base shrink-0">${stylist.name.charAt(0)}</div>
-              <div class="overflow-hidden">
-                <h4 class="font-bold text-sm text-zinc-900 truncate leading-tight">${stylist.name}</h4>
-                <p class="text-[11px] text-teal-700 font-medium truncate"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
+          <div class="w-64 p-1 text-zinc-900 bg-white">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
+              <div>
+                <h4 class="font-bold text-base text-zinc-900 leading-tight">${stylist.name}</h4>
+                <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
               </div>
             </div>
-            
-            <div class="flex flex-wrap gap-1 mb-3 min-h-[20px]">
-              ${tagsArr.length > 0 
-                ? tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('') 
-                : `<span class="text-[10px] text-zinc-400 italic">#暫無風格標籤</span>`}
+            <div class="flex flex-wrap gap-1 mb-3">
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('')}
             </div>
-
             <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
-              <div><span class="text-[9px] text-zinc-400 block">起步價</span><span class="text-xs font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
+              <div><span class="text-[10px] text-zinc-400 block">起步價</span><span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
               <div class="flex gap-1 items-center">
-                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white text-[11px] px-2 py-1 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-brands fa-instagram"></i></a>` : ''}
-                <a href="${waLink}" target="_blank" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] px-2.5 py-1 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
-                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-[11px] px-2 py-1 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
+                <!-- 🎨 IG 按鈕顏色已對齊 WhatsApp 按鈕樣式 -->
+                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600"></i> IG</a>` : ''}
+                <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
+                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
               </div>
             </div>
           </div>
@@ -672,8 +655,12 @@
       container.innerHTML = dataList.map(stylist => {
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const igUrl = getIgLink(stylist.ig_handle);
-        const tagsArr = parseTags(stylist.tags);
-
+        let tagsArr = [];
+        if (Array.isArray(stylist.tags)) {
+          tagsArr = stylist.tags;
+        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
+          tagsArr = stylist.tags.split(',').map(t => t.trim());
+        }
         return `
           <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900">
             <div class="flex items-start justify-between mb-3">
@@ -687,13 +674,12 @@
               <span class="text-base font-extrabold text-teal-600">HK$ ${stylist.price_starting || 250}</span>
             </div>
             <div class="flex flex-wrap gap-1.5 mb-4">
-              ${tagsArr.length > 0 
-                ? tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('') 
-                : `<span class="text-xs text-zinc-400 italic">#暫無風格標籤</span>`}
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('')}
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1 shadow-sm"><i class="fa-brands fa-instagram text-sm"></i> IG</a>` : ''}
-              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold flex items-center justify-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> WhatsApp 預約</a>
+              <!-- 🎨 IG 按鈕顏色已對齊 WhatsApp 按鈕樣式 -->
+              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram text-pink-600 text-sm"></i> IG</a>` : ''}
+              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> WhatsApp 預約</a>
               <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold"><i class="fa-solid fa-pen"></i></button>
             </div>
           </div>
@@ -728,16 +714,9 @@
 
     function applyFilters() {
       const district = document.getElementById('districtFilter').value;
-      currentFilteredData = rawStylistsData.filter(s => {
-        const matchesDistrict = (district === 'ALL' || s.district === district);
-        const tagsArr = parseTags(s.tags);
-        const matchesTag = (!activeTag || tagsArr.includes(activeTag));
-        return matchesDistrict && matchesTag;
-      });
-      renderMarkers(currentFilteredData); 
-      renderListView(currentFilteredData);
+      currentFilteredData = rawStylistsData.filter(s => (district === 'ALL' || s.district === district) && (!activeTag || (s.tags || []).includes(activeTag)));
+      renderMarkers(currentFilteredData); renderListView(currentFilteredData);
     }
-    
     function toggleTagFilter(tag) { activeTag = (activeTag === tag) ? null : tag; applyFilters(); }
     function resetFilters() { document.getElementById('districtFilter').value = 'ALL'; activeTag = null; applyFilters(); }
     function toggleView() {
