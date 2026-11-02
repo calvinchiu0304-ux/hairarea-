@@ -48,34 +48,34 @@
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased overflow-hidden">
 
   <!-- 頂部 Header & 導航列 -->
-  <header class="fixed top-0 left-0 right-0 z-20 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 p-3 shadow-lg">
+  <header class="fixed top-0 left-0 right-0 z-20 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 p-2.5 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-lg shadow-md">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-md">
             ✂️
           </div>
-          <div>
-            <h1 class="font-bold text-base tracking-wide flex items-center gap-2">
-              香港髮型地圖 <span class="text-xs bg-teal-500/20 text-teal-400 px-1.5 py-0.5 rounded border border-teal-500/30 font-normal">生態平台版</span>
-            </h1>
-          </div>
+          <h1 class="font-bold text-xs tracking-wide flex items-center gap-1">
+            香港髮型地圖 <span class="text-[10px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded border border-teal-500/30 font-normal">生態版</span>
+          </h1>
         </div>
         
-        <div class="flex items-center gap-1.5">
-          <button onclick="showModelModal()" class="text-xs bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
-            <i class="fa-solid fa-camera"></i> 成為Model
+        <!-- 頂部功能按鈕區（優化間距與文字防止換行） -->
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="showModelModal()" class="text-[11px] bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
+            <i class="fa-solid fa-camera"></i> Model
           </button>
-          <button onclick="showWishModal()" class="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
+          <button onclick="showWishModal()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
             <i class="fa-solid fa-wand-magic-sparkles"></i> 許願池
           </button>
-          <button onclick="showApplyModal()" class="text-xs bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
-            <i class="fa-solid fa-user-plus"></i> 自薦加入
+          <button onclick="showApplyModal()" class="text-[11px] bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap">
+            <i class="fa-solid fa-user-plus"></i> 自薦
           </button>
-          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 px-2 py-1.5 rounded-lg transition flex items-center gap-1">
+          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 p-1.5 rounded-lg transition">
             <i class="fa-solid fa-sun" id="themeIcon"></i>
           </button>
-          <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition flex items-center gap-1 pl-1">
+          <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition p-1">
             <i class="fa-solid fa-lock"></i>
           </a>
         </div>
@@ -128,7 +128,7 @@
     </div>
   </main>
 
-  <!-- View 2: 🏠 上門理髮告示板 (附帶地區篩選功能) -->
+  <!-- View 2: 🏠 上門理髮告示板 -->
   <main id="boardMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
     <div class="max-w-xl mx-auto space-y-4">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
@@ -143,7 +143,7 @@
         </button>
       </div>
 
-      <!-- 📍 告示板專用地區篩選列 -->
+      <!-- 📍 地區篩選列 -->
       <div class="flex items-center gap-2 bg-zinc-900/80 border border-zinc-800 p-2.5 rounded-xl">
         <span class="text-xs text-zinc-400 font-bold pl-1"><i class="fa-solid fa-filter"></i> 篩選地區：</span>
         <select id="boardDistrictFilter" onchange="filterBoardRequests()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-amber-500">
@@ -156,7 +156,6 @@
         </select>
       </div>
 
-      <!-- 需求清單容器 -->
       <div id="homeServiceBoardContainer" class="space-y-3"></div>
     </div>
   </main>
@@ -189,7 +188,7 @@
     </div>
   </div>
 
-  <!-- 📸 成為髮型模特兒報名 Modal -->
+  <!-- 📸 模特兒報名 Modal -->
   <div id="modelModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-pink-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeModelModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -417,7 +416,7 @@
     let isDarkTheme = true;
     let rawStylistsData = [];
     let currentFilteredData = [];
-    let rawBoardData = []; // 儲存上門需求原始資料
+    let rawBoardData = [];
     let activeTag = null;
     let isListView = false;
     let miniMap = null, miniMarker = null;
@@ -466,14 +465,13 @@
         const { data, error } = await supabaseClient.from('home_service_requests').select('*').order('created_at', { ascending: false });
         if (error) { rawBoardData = []; }
         else { rawBoardData = data || []; }
-        filterBoardRequests(); // 套用地區篩選渲染
+        filterBoardRequests();
       } catch (err) {
         rawBoardData = [];
         filterBoardRequests();
       }
     }
 
-    // 📍 根據地區篩選告示板需求
     function filterBoardRequests() {
       const container = document.getElementById('homeServiceBoardContainer');
       const selectedDistrict = document.getElementById('boardDistrictFilter').value;
@@ -510,7 +508,6 @@
       }).join('');
     }
 
-    // 📸 模特兒報名與 Canvas 自動壓縮相片防錯邏輯
     function showModelModal() { document.getElementById('modelModal').classList.remove('hidden'); }
     function closeModelModal() { document.getElementById('modelModal').classList.add('hidden'); }
 
@@ -598,7 +595,7 @@
           alert('🎉 上門需求發布成功！您可以隨時透過上方「上門理髮告示板」查看。');
           document.getElementById('wishForm').reset();
           closeWishModal();
-          await fetchHomeServiceBoard(); // 背景重新載入資料
+          await fetchHomeServiceBoard();
         }
       } catch (err) {
         alert('網路連線異常，請檢查網絡後重試。');
