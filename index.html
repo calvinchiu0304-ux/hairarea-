@@ -33,7 +33,24 @@
 
   <style>
     body { touch-action: manipulation; }
-    .leaflet-popup-content-wrapper { background: #18181b; color: #f4f4f5; border: 1px solid #27272a; border-radius: 1rem; padding: 0; }
+    
+    /* 舊檔經典的 OpenStreetMap 深色濾鏡，無需 API Key */
+    .dark-map-tile {
+      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+
+    .leaflet-marker-pane,
+    .leaflet-popup-pane {
+      filter: none !important;
+    }
+
+    .leaflet-popup-content-wrapper { 
+      background: #18181b; 
+      color: #f4f4f5; 
+      border: 1px solid #27272a; 
+      border-radius: 1rem; 
+      padding: 0; 
+    }
     .leaflet-popup-tip { background: #18181b; }
     .leaflet-container { font-family: inherit; background-color: #09090b !important; }
   </style>
@@ -71,7 +88,7 @@
       <div class="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800">
         <h2 class="font-bold text-base text-teal-400"><i class="fa-solid fa-id-card-clip"></i> 髮型師雲端自薦</h2>
         <button onclick="closeApplyModal()" class="text-zinc-400 hover:text-white text-sm w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
-          <i class="fa-solid xmark"></i>✕
+          ✕
         </button>
       </div>
 
@@ -172,16 +189,23 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Znl3ZWl5cG5ob2RjZmZ1c3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjU0ODAsImV4cCI6MjEwODg0MTQ4MH0.4IGm5K2N9RDr_RAO6STivC9E6_HxlLyMg6tCzTS6zEg';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let map, miniMap, marker, miniMarker;
+    let map, miniMap, baseTileLayer, marker, miniMarker;
     let selectedLat = 22.3193, selectedLng = 114.1694; // 預設香港中心
 
-    // 初始化主地圖
+    // 初始化主地圖（使用穩定的 OpenStreetMap + 舊檔深色反相濾鏡）
     function initMap() {
       map = L.map('map', { zoomControl: false }).setView([22.3193, 114.1694], 13);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap & CARTO',
+      
+      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 19
       }).addTo(map);
+
+      // 套用深色地圖濾鏡
+      const tileContainer = baseTileLayer.getContainer();
+      if (tileContainer) {
+        tileContainer.classList.add('dark-map-tile');
+      }
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
       loadApprovedStylists();
@@ -193,7 +217,7 @@
         const { data, error } = await supabaseClient
           .from('stylists')
           .select('*')
-          .eq('status', 'approved'); // 關鍵：只抓取審核通過上線的資料
+          .eq('status', 'approved'); // 只抓取審核通過上線的資料[span_1](start_span)[span_1](end_span)
 
         if (error) {
           console.error('載入地圖資料失敗:', error.message);
@@ -235,8 +259,11 @@
       setTimeout(() => {
         if (!miniMap) {
           miniMap = L.map('miniMap').setView([22.3193, 114.1694], 14);
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(miniMap);
+          const miniTile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(miniMap);
           
+          const miniContainer = miniTile.getContainer();
+          if (miniContainer) miniContainer.classList.add('dark-map-tile');
+
           miniMarker = L.marker([22.3193, 114.1694], { draggable: true }).addTo(miniMap);
           miniMarker.on('dragend', function(e) {
             const pos = miniMarker.getLatLng();
@@ -282,7 +309,7 @@
       }
     }
 
-    // 提交表單至 Supabase (狀態預設為 pending)
+    // 提交表單至 Supabase (單一資料表，狀態預設為 pending)
     async function submitApplication(e) {
       e.preventDefault();
 
@@ -299,7 +326,7 @@
         tags: tags,
         lat: selectedLat,
         lng: selectedLng,
-        status: 'pending' // 關鍵：新送出申請設為待審核狀態
+        status: 'pending' // 預設為待審核狀態
       };
 
       try {
