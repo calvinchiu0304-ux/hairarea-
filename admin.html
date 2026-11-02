@@ -51,7 +51,7 @@
     </div>
   </div>
 
-  <!-- 🔍 圖片放大 Modal（頁面內燈箱，解決跳轉黑畫面問題） -->
+  <!-- 🔍 圖片放大 Modal -->
   <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer" onclick="closeImageViewer()">
     <div class="relative max-w-3xl max-h-[90vh] flex flex-col items-center justify-center">
       <button onclick="closeImageViewer()" class="absolute -top-10 right-0 text-white text-2xl font-bold hover:text-pink-400"><i class="fa-solid fa-xmark"></i> 關閉</button>
@@ -85,6 +85,7 @@
         sSec.classList.remove('hidden'); mSec.classList.add('hidden');
         tS.className = "px-4 py-2 rounded-xl text-xs font-bold bg-teal-500 text-zinc-950 transition";
         tM.className = "px-4 py-2 rounded-xl text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition";
+        loadAdminData();
       } else {
         sSec.classList.add('hidden'); mSec.classList.remove('hidden');
         tM.className = "px-4 py-2 rounded-xl text-xs font-bold bg-pink-500 text-zinc-950 transition";
@@ -93,21 +94,81 @@
       }
     }
 
+    // ✂️ 髮型師審核與管理（已補上審批通過與待審按鈕）
     async function loadAdminData() {
       const container = document.getElementById('adminStylistList');
-      const { data } = await supabaseClient.from('stylists').select('*').order('id', { ascending: false });
-      if (!data || data.length === 0) { container.innerHTML = `<p class="text-zinc-500">暫無資料</p>`; return; }
-      container.innerHTML = data.map(s => `
-        <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl flex items-center justify-between">
-          <div>
-            <span class="font-bold text-zinc-100">${s.name}</span> <span class="text-teal-400">(${s.district} · ${s.shop_name})</span>
-            <p class="text-zinc-400 text-[11px]">狀態: ${s.status || 'approved'} | 價格: $${s.price_starting} | WA: ${s.whatsapp}</p>
+      const { data, error } = await supabaseClient.from('stylists').select('*').order('id', { ascending: false });
+      if (error || !data || data.length === 0) { container.innerHTML = `<p class="text-zinc-500">暫無髮型師資料</p>`; return; }
+      
+      container.innerHTML = data.map(s => {
+        const isPending = s.status === 'pending' || !s.status;
+        return `
+          <div class="bg-zinc-950 border ${isPending ? 'border-amber-500/50' : 'border-zinc-800'} p-3.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-zinc-100 text-sm">${s.name}</span> 
+                <span class="text-teal-400">(${s.district} · ${s.shop_name})</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-bold ${isPending ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-teal-500/20 text-teal-400 border border-teal-500/30'}">
+                  狀態: ${s.status || 'pending'}
+                </span>
+              </div>
+              <p class="text-zinc-400 text-[11px] mt-1">
+                價格: <span class="text-zinc-200">$${s.price_starting || 250}</span> | 
+                WA: <span class="text-zinc-200">${s.whatsapp}</span> | 
+                IG: <span class="text-zinc-200">${s.ig_handle || '無'}</span>
+              </p>
+            </div>
+            
+            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+              ${isPending ? `
+                <button onclick="approveStylist(${s.id})" class="bg-teal-600 hover:bg-teal-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1 shadow-md">
+                  <i class="fa-solid fa-check"></i> 審批通過
+                </button>
+              ` : `
+                <button onclick="rejectStylist(${s.id})" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs px-2.5 py-1.5 rounded-lg border border-zinc-700 transition">
+                  設為待審
+                </button>
+              `}
+              <button onclick="deleteStylist(${s.id})" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg font-bold transition">
+                刪除
+              </button>
+            </div>
           </div>
-          <button onclick="deleteStylist(${s.id})" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg font-bold">刪除</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
+    // 審批通過
+    async function approveStylist(id) {
+      const { error } = await supabaseClient.from('stylists').update({ status: 'approved' }).eq('id', id);
+      if (error) {
+        alert('❌ 審批失敗: ' + error.message);
+      } else {
+        alert('🎉 審批成功！該髮型師現已同步至地圖。');
+        loadAdminData();
+      }
+    }
+
+    // 改回待審
+    async function rejectStylist(id) {
+      const { error } = await supabaseClient.from('stylists').update({ status: 'pending' }).eq('id', id);
+      if (error) {
+        alert('❌ 操作失敗: ' + error.message);
+      } else {
+        alert('已將狀態改回待審。');
+        loadAdminData();
+      }
+    }
+
+    // 刪除髮型師
+    async function deleteStylist(id) {
+      if (confirm('確定要刪除這位髮型師嗎？')) {
+        await supabaseClient.from('stylists').delete().eq('id', id);
+        loadAdminData();
+      }
+    }
+
+    // 📸 私密模特兒資源庫
     async function loadModelsData() {
       const container = document.getElementById('adminModelList');
       const { data } = await supabaseClient.from('hair_models').select('*').order('created_at', { ascending: false });
@@ -136,6 +197,13 @@
       }).join('');
     }
 
+    async function deleteModel(id) {
+      if (confirm('確定要刪除這筆模特兒記錄嗎？')) {
+        await supabaseClient.from('hair_models').delete().eq('id', id);
+        loadModelsData();
+      }
+    }
+
     // 🔍 燈箱圖片放大檢視邏輯
     function zoomImage(src) {
       document.getElementById('modalFullImage').src = src;
@@ -143,20 +211,6 @@
     }
     function closeImageViewer() {
       document.getElementById('imageViewerModal').classList.add('hidden');
-    }
-
-    async function deleteStylist(id) {
-      if (confirm('確定要刪除這位髮型師嗎？')) {
-        await supabaseClient.from('stylists').delete().eq('id', id);
-        loadAdminData();
-      }
-    }
-
-    async function deleteModel(id) {
-      if (confirm('確定要刪除這筆模特兒記錄嗎？')) {
-        await supabaseClient.from('hair_models').delete().eq('id', id);
-        loadModelsData();
-      }
     }
   </script>
 </body>
