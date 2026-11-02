@@ -2,10 +2,6 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-<!DOCTYPE html>
-<html lang="zh-HK">
-<head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>香港髮型地圖 Hair Map HK | 認人不認店·極速搵髮型師</title>
 
@@ -267,8 +263,18 @@
               <i class="fa-solid fa-location-crosshairs"></i> 使用當前 GPS
             </button>
           </div>
-          <div id="miniMap" class="w-full h-36 rounded-xl border border-zinc-700 z-0"></div>
-          <p class="text-[10px] text-zinc-500 mt-1">提示：可直接在地圖上拖曳或點擊來改變標記位置。</p>
+          <div id="miniMap" class="w-full h-32 rounded-xl border border-zinc-700 z-0 mb-2"></div>
+          
+          <!-- 新增：可修改/查看的地址文字顯示與搜尋欄 -->
+          <div>
+            <label class="block text-zinc-400 mb-1">店舖詳細地址（可檢視或手動修改確認）</label>
+            <div class="flex gap-2">
+              <input type="text" id="applyAddress" placeholder="點擊地圖自動帶出地址，或手動修改..." class="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
+              <button type="button" onclick="searchAddressOnMap()" class="bg-zinc-700 hover:bg-zinc-600 text-zinc-200 px-3 py-2 rounded-lg transition shrink-0">
+                <i class="fa-solid fa-magnifying-glass"></i> 定位地址
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- 隱藏的經緯度欄位 -->
@@ -339,7 +345,6 @@
     let activeTag = null;
     let isListView = false;
 
-    // 自薦表單用的迷你地圖變數
     let miniMap = null;
     let miniMarker = null;
 
@@ -600,36 +605,39 @@
       }
     }
 
-    /* 彈窗 Modal 控制 */
     function showHelpModal() { document.getElementById('helpModal').classList.remove('hidden'); }
     function closeHelpModal() { document.getElementById('helpModal').classList.add('hidden'); }
 
     function showApplyModal() {
       document.getElementById('applyModal').classList.remove('hidden');
       
-      // 初始化自薦表單中的迷你地圖
       setTimeout(() => {
         if (!miniMap) {
-          miniMap = L.map('miniMap').setView([22.3193, 114.1694], 14);
+          miniMap = L.map('miniMap').setView([22.3175, 114.1694], 15);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19
           }).addTo(miniMap);
 
           miniMarker = L.marker([22.3175, 114.1694], { draggable: true }).addTo(miniMap);
 
-          // 點擊地圖更新標記與隱藏經緯度
+          // 點擊地圖更新經緯度與反查地址
           miniMap.on('click', function(e) {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
             miniMarker.setLatLng([lat, lng]);
             updateCoordValues(lat, lng);
+            fetchAddressFromCoords(lat, lng);
           });
 
-          // 拖曳標記更新經緯度
+          // 拖曳標記更新經緯度與反查地址
           miniMarker.on('dragend', function(e) {
             const pos = miniMarker.getLatLng();
             updateCoordValues(pos.lat, pos.lng);
+            fetchAddressFromCoords(pos.lat, pos.lng);
           });
+
+          // 初始抓取一次預設位置地址
+          fetchAddressFromCoords(22.3175, 114.1694);
         } else {
           miniMap.invalidateSize();
         }
@@ -643,6 +651,44 @@
       document.getElementById('applyLng').value = lng.toFixed(4);
     }
 
+    /* 反向地理編碼：經緯度轉文字地址 */
+    async function fetchAddressFromCoords(lat, lng) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh-HK`);
+        const data = await res.json();
+        if (data && data.display_name) {
+          document.getElementById('applyAddress').value = data.display_name;
+        }
+      } catch (e) {
+        console.error('反查地址失敗', e);
+      }
+    }
+
+    /* 正向地理編碼：文字地址搜尋並移動地圖 Pin */
+    async function searchAddressOnMap() {
+      const query = document.getElementById('applyAddress').value.trim();
+      if (!query) {
+        alert('請先輸入要搜尋的地址關鍵字');
+        return;
+      }
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', 香港')}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          miniMap.setView([lat, lng], 16);
+          miniMarker.setLatLng([lat, lng]);
+          updateCoordValues(lat, lng);
+          alert('📍 已成功根據地址定位地圖！');
+        } else {
+          alert('找不到此地址，請嘗試輸入更明確的香港街道或大廈名稱。');
+        }
+      } catch (e) {
+        alert('地址搜尋發生錯誤，請稍後再試。');
+      }
+    }
+
     /* 一鍵 GPS 定位 */
     function getGpsLocation() {
       if (navigator.geolocation) {
@@ -654,6 +700,7 @@
               miniMap.setView([lat, lng], 16);
               miniMarker.setLatLng([lat, lng]);
               updateCoordValues(lat, lng);
+              fetchAddressFromCoords(lat, lng);
             }
             alert('📍 已成功取得您當前的 GPS 位置！');
           },
@@ -667,648 +714,6 @@
     }
 
     /* 提交自薦申請 */
-    async function submitApplication(event) {
-      event.preventDefault();
-      
-      const name = document.getElementById('applyName').value.trim();
-      const gender = document.getElementById('applyGender').value;
-      const district = document.getElementById('applyDistrict').value;
-      const shop_name = document.getElementById('applyShop').value.trim();
-      const price_starting = parseFloat(document.getElementById('applyPrice').value) || 250;
-      const tagsInput = document.getElementById('applyTags').value;
-      const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
-      const ig_handle = document.getElementById('applyIg').value.trim();
-      const whatsapp = document.getElementById('applyWa').value.trim();
-      const lat = parseFloat(document.getElementById('applyLat').value);
-      const lng = parseFloat(document.getElementById('applyLng').value);
-
-      const payload = {
-        name,
-        gender,
-        shop_name,
-        district,
-        price_starting,
-        tags,
-        ig_handle,
-        whatsapp,
-        lat,
-        lng,
-        status: 'pending'
-      };
-
-      try {
-        const { error } = await supabaseClient
-          .from('pending_hairstylists')
-          .insert([payload]);
-
-        if (error) {
-          alert('提交失敗: ' + error.message);
-        } else {
-          alert('🎉 申請提交成功！管理員審核通過後將會顯示在地圖上。');
-          document.getElementById('applyForm').reset();
-          closeApplyModal();
-        }
-      } catch (err) {
-        console.error('提交異常:', err);
-        alert('提交時發生錯誤，請稍後再試。');
-      }
-    }
-  </script>
-</body>
-</html>
-, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>香港髮型地圖 Hair Map HK | 認人不認店·極速搵髮型師</title>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdfa',
-              500: '#14b8a6',
-              600: '#0d9488',
-              900: '#134e4a',
-              accent: '#f43f5e'
-            }
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- FontAwesome Icons CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <style>
-    #map {
-      height: 100vh;
-      width: 100%;
-      z-index: 1;
-      background-color: #18181b;
-    }
-    
-    .dark-map-tile {
-      filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-    }
-
-    .leaflet-marker-pane,
-    .leaflet-popup-pane {
-      filter: none !important;
-    }
-
-    .leaflet-popup-content-wrapper {
-      background: #ffffff !important;
-      color: #18181b !important;
-      border-radius: 16px !important;
-      padding: 6px !important;
-      border: 1px solid #e4e4e7 !important;
-      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.3) !important;
-    }
-    .leaflet-popup-tip {
-      background: #ffffff !important;
-    }
-    .leaflet-popup-content {
-      margin: 8px !important;
-    }
-
-    .leaflet-control-zoom {
-      display: none !important;
-    }
-
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  </style>
-</head>
-<body class="bg-zinc-950 text-zinc-100 font-sans antialiased overflow-hidden">
-
-  <!-- 頂部 Header & 搜尋篩選列 -->
-  <header class="fixed top-0 left-0 right-0 z-20 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 p-3 shadow-lg">
-    <div class="max-w-7xl mx-auto flex flex-col gap-2">
-      <!-- 上欄：Logo、自薦按鈕、主題切換 -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-lg shadow-md">
-            ✂️
-          </div>
-          <div>
-            <h1 class="font-bold text-base tracking-wide flex items-center gap-2">
-              香港髮型地圖 <span class="text-xs bg-teal-500/20 text-teal-400 px-1.5 py-0.5 rounded border border-teal-500/30 font-normal">動態雲端版</span>
-            </h1>
-          </div>
-        </div>
-        
-        <div class="flex items-center gap-2">
-          <!-- 自薦加入地圖按鈕 -->
-          <button onclick="showApplyModal()" class="text-xs bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95">
-            <i class="fa-solid fa-user-plus"></i> 自薦加入
-          </button>
-
-          <!-- 地圖深/淺色切換開關 -->
-          <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
-            <i class="fa-solid fa-sun" id="themeIcon"></i>
-            <span id="themeText" class="hidden sm:inline">淺色</span>
-          </button>
-
-          <!-- 管理員入口測試 -->
-          <a href="#admin" onclick="alert('🔑 管理員入口測試：正式版將由專屬秘密網址搭配主密碼登入')" class="text-xs text-zinc-400 hover:text-teal-400 transition flex items-center gap-1 pl-1">
-            <i class="fa-solid fa-lock"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- 下欄：地區與風格快捷篩選按鈕 -->
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-        <select id="districtFilter" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-teal-500">
-          <option value="ALL">📍 全部地區</option>
-          <option value="mongkok">旺角</option>
-          <option value="cwb">銅鑼灣</option>
-          <option value="tst">尖沙咀</option>
-          <option value="shatin">沙田</option>
-        </select>
-
-        <button onclick="toggleTagFilter('日系電髮')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #日系電髮
-        </button>
-        <button onclick="toggleTagFilter('Barber漸變')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #Barber漸變
-        </button>
-        <button onclick="toggleTagFilter('單剪速剪')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #單剪速剪
-        </button>
-        <button onclick="toggleTagFilter('韓系剪裁')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">
-          #韓系剪裁
-        </button>
-        <button onclick="resetFilters()" class="text-xs shrink-0 text-zinc-400 underline px-1">
-          重置
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- 地圖 View 主體 -->
-  <main class="relative w-full h-full">
-    <div id="map"></div>
-
-    <div id="listView" class="hidden absolute inset-0 top-[96px] bg-zinc-950/95 z-10 overflow-y-auto p-4 pb-28">
-      <div class="max-w-md mx-auto flex flex-col gap-4" id="stylistListContainer"></div>
-    </div>
-  </main>
-
-  <!-- 右側垂直浮動工具欄 -->
-  <div class="fixed right-4 bottom-28 z-30 flex flex-col gap-2">
-    <button onclick="zoomInMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-    <button onclick="zoomOutMap()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-zinc-200 rounded-xl flex items-center justify-center text-sm shadow-xl hover:text-teal-400 hover:border-teal-500 transition active:scale-95">
-      <i class="fa-solid fa-minus"></i>
-    </button>
-    <button onclick="showHelpModal()" class="w-10 h-10 bg-zinc-900/90 border border-zinc-700 text-teal-400 rounded-xl flex items-center justify-center text-sm shadow-xl hover:bg-zinc-800 transition active:scale-95">
-      <i class="fa-solid fa-question"></i>
-    </button>
-  </div>
-
-  <!-- 浮動控制區域（地圖/列表切換） -->
-  <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-    <button id="viewToggleBtn" onclick="toggleView()" class="bg-zinc-900/95 border border-teal-500/50 text-teal-400 font-medium text-sm px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-zinc-800 transition active:scale-95 backdrop-blur-md">
-      <i class="fa-solid fa-list-ul" id="toggleIcon"></i>
-      <span id="toggleText">切換為列表視角</span>
-    </button>
-  </div>
-
-  <!-- 說明彈窗 Modal -->
-  <div id="helpModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-5 relative shadow-2xl">
-      <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-      <h3 class="text-base font-bold text-teal-400 mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-circle-info"></i> 關於香港髮型地圖
-      </h3>
-      <div class="text-xs text-zinc-300 space-y-2.5 leading-relaxed">
-        <p>✨ <strong>認人不認店：</strong> 專為香港人而設，搜尋髮型師個人專頁與真實在地作品。</p>
-        <p>🎨 <strong>標籤識別性別：</strong> 天空柔藍標籤代表男髮型師 (#89C4E6)，櫻花柔粉標籤代表女髮型師 (#EBBFCB)。</p>
-        <p>📲 <strong>Smart WhatsApp 直連：</strong> 一鍵發送預設訊息直接預約報價，絕無中間人抽佣。</p>
-        <p>🔄 <strong>雲端資料庫串接：</strong> 資料實時與 Supabase 資料庫同步連線。</p>
-      </div>
-      <button onclick="closeHelpModal()" class="w-full mt-5 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2 rounded-xl text-xs transition">
-        明白，開始使用
-      </button>
-    </div>
-  </div>
-
-  <!-- 髮型師自薦表單 Modal -->
-  <div id="applyModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
-      <button onclick="closeApplyModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-      <h3 class="text-base font-bold text-teal-400 mb-3 flex items-center gap-2">
-        <i class="fa-solid fa-user-plus"></i> 髮型師自薦加入地圖
-      </h3>
-      <form id="applyForm" onsubmit="submitApplication(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block text-zinc-400 mb-1">您的稱呼 / 髮型師名字 *</label>
-          <input type="text" id="applyName" required placeholder="例如: Calvin Wong" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">性別 *</label>
-            <select id="applyGender" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-              <option value="M">男髮型師 (天空藍)</option>
-              <option value="F">女髮型師 (櫻花粉)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">地區 *</label>
-            <select id="applyDistrict" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-              <option value="mongkok">旺角</option>
-              <option value="cwb">銅鑼灣</option>
-              <option value="tst">尖沙咀</option>
-              <option value="shatin">沙田</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">髮型屋名稱 *</label>
-            <input type="text" id="applyShop" required placeholder="例如: GB Home Salon" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">門檻起步價 (HK$) *</label>
-            <input type="number" id="applyPrice" required placeholder="280" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-          </div>
-        </div>
-        <div>
-          <label class="block text-zinc-400 mb-1">擅長風格標籤 (用逗號隔開) *</label>
-          <input type="text" id="applyTags" required placeholder="例如: 日系電髮, 韓系剪裁, 男士理髮" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">Instagram 帳號</label>
-            <input type="text" id="applyIg" placeholder="例如: calvin_hair" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">WhatsApp 電話 *</label>
-            <input type="text" id="applyWa" required placeholder="85291234567" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-zinc-400 mb-1">地圖緯度 (Lat) *</label>
-            <input type="number" step="0.0001" id="applyLat" required value="22.3175" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">地圖經度 (Lng) *</label>
-            <input type="number" step="0.0001" id="applyLng" required value="114.1694" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-500">
-          </div>
-        </div>
-        <p class="text-[10px] text-zinc-500">💡 提示：提交後將送交管理員審核，通過後即會自動顯示於公開地圖上。</p>
-        <button type="submit" class="w-full mt-2 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">
-          送出審核申請
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- JavaScript 邏輯與 Supabase 對接 -->
-  <script>
-    const SUPABASE_URL = 'https://dzfyweiypnhodcffussz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Znl3ZWl5cG5ob2RjZmZ1c3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNjU0ODAsImV4cCI6MjEwODg0MTQ4MH0.4IGm5K2N9RDr_RAO6STivC9E6_HxlLyMg6tCzTS6zEg';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const fallbackStylists = [
-      {
-        id: 1,
-        name: "Calvin Wong",
-        gender: "M",
-        shop_name: "GB Home Salon",
-        district: "mongkok",
-        lat: 22.3175,
-        lng: 114.1694,
-        price_starting: 280,
-        tags: ["日系電髮", "韓系剪裁", "男士理髮"],
-        ig_handle: "calvin_hair_mk",
-        whatsapp: "85291234567"
-      },
-      {
-        id: 2,
-        name: "Jessica Hair",
-        gender: "F",
-        shop_name: "CWB Cut & Shave",
-        district: "cwb",
-        lat: 22.2799,
-        lng: 114.1838,
-        price_starting: 450,
-        tags: ["日系電髮", "漂染專門店", "韓式防塌"],
-        ig_handle: "jessica_cwb_hair",
-        whatsapp: "85298765432"
-      },
-      {
-        id: 3,
-        name: "Alex Barber",
-        gender: "M",
-        shop_name: "TST Style Studio",
-        district: "tst",
-        lat: 22.2988,
-        lng: 114.1722,
-        price_starting: 180,
-        tags: ["Barber漸變", "美式油頭", "單剪速剪"],
-        ig_handle: "alex_tst_barber",
-        whatsapp: "85290001111"
-      }
-    ];
-
-    let map;
-    let markersGroup;
-    let baseTileLayer;
-    let isDarkTheme = true;
-    let rawStylistsData = [];
-    let currentFilteredData = [];
-    let activeTag = null;
-    let isListView = false;
-
-    window.onload = async function() {
-      map = L.map('map', { zoomControl: false }).setView([22.3193, 114.1694], 13);
-
-      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(map);
-
-      applyMapFilter(true);
-      markersGroup = L.layerGroup().addTo(map);
-
-      await fetchStylists();
-    };
-
-    async function fetchStylists() {
-      try {
-        const { data, error } = await supabaseClient
-          .from('stylists')
-          .select('*')
-          .eq('status', 'approved');
-
-        if (error || !data || data.length === 0) {
-          console.warn('Supabase 未回傳資料，自動切換至備份樣板資料:', error?.message);
-          rawStylistsData = fallbackStylists;
-        } else {
-          rawStylistsData = data;
-        }
-      } catch (err) {
-        console.error('連線 Supabase 失敗:', err);
-        rawStylistsData = fallbackStylists;
-      }
-
-      currentFilteredData = [...rawStylistsData];
-      renderMarkers(currentFilteredData);
-      renderListView(currentFilteredData);
-    }
-
-    function getWhatsAppLink(phone, name) {
-      const cleanPhone = String(phone).replace(/\D/g, '');
-      const rawMessage = `你好！我在【香港髮型地圖】看到 ${name} 的專頁，想查詢與預約剪髮/電染服務...`;
-      return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(rawMessage)}`;
-    }
-
-    function applyMapFilter(dark) {
-      const tileContainer = baseTileLayer.getContainer();
-      if (tileContainer) {
-        if (dark) {
-          tileContainer.classList.add('dark-map-tile');
-        } else {
-          tileContainer.classList.remove('dark-map-tile');
-        }
-      }
-    }
-
-    function toggleMapTheme() {
-      const themeIcon = document.getElementById('themeIcon');
-      const themeText = document.getElementById('themeText');
-
-      if (isDarkTheme) {
-        applyMapFilter(false);
-        themeIcon.className = "fa-solid fa-moon";
-        themeText.innerText = "深色";
-        isDarkTheme = false;
-      } else {
-        applyMapFilter(true);
-        themeIcon.className = "fa-solid fa-sun";
-        themeText.innerText = "淺色";
-        isDarkTheme = true;
-      }
-    }
-
-    function zoomInMap() { if (map) map.zoomIn(); }
-    function zoomOutMap() { if (map) map.zoomOut(); }
-
-    function renderMarkers(dataList) {
-      markersGroup.clearLayers();
-
-      dataList.forEach(stylist => {
-        const bgColor = stylist.gender === 'F' ? '#EBBFCB' : '#89C4E6';
-
-        const customIcon = L.divIcon({
-          className: 'custom-pin',
-          html: `
-            <div style="background-color: ${bgColor};" class="text-zinc-950 font-bold text-xs px-2.5 py-1 rounded-full shadow-md border border-white/80 flex items-center gap-1 hover:scale-110 transition cursor-pointer">
-              <span>✂️ ${stylist.name}</span>
-            </div>
-          `,
-          iconSize: [95, 30],
-          iconAnchor: [47, 15]
-        });
-
-        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
-        const startingPrice = stylist.price_starting || 250;
-        const igName = stylist.ig_handle || 'stylist';
-
-        const popupContent = `
-          <div class="w-64 p-1 text-zinc-900 bg-white">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">
-                ${stylist.name.charAt(0)}
-              </div>
-              <div>
-                <h4 class="font-bold text-base text-zinc-900 leading-tight">${stylist.name}</h4>
-                <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
-              </div>
-            </div>
-            
-            <div class="flex flex-wrap gap-1 mb-3">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200 font-medium">#${t}</span>`).join('')}
-            </div>
-
-            <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
-              <div>
-                <span class="text-[10px] text-zinc-400 block">門檻起步價</span>
-                <span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span>
-              </div>
-              <div class="flex gap-1.5">
-                <a href="https://instagram.com/${igName}" target="_blank" rel="noopener noreferrer" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2.5 py-1.5 rounded-lg border border-zinc-300/80 font-medium transition flex items-center gap-1">
-                  <i class="fa-brands fa-instagram text-pink-500"></i> IG
-                </a>
-                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-3 py-1.5 rounded-lg border border-zinc-300/80 font-bold transition flex items-center gap-1">
-                  <i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約
-                </a>
-              </div>
-            </div>
-          </div>
-        `;
-
-        const marker = L.marker([stylist.lat, stylist.lng], { icon: customIcon });
-        marker.bindPopup(popupContent);
-        markersGroup.addLayer(marker);
-      });
-    }
-
-    function renderListView(dataList) {
-      const container = document.getElementById('stylistListContainer');
-      
-      if (dataList.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 text-zinc-500">
-            <i class="fa-solid fa-scissors text-3xl mb-2 block"></i>
-            <p class="text-sm">附近暫無符合條件的髮型師</p>
-            <button onclick="resetFilters()" class="mt-3 text-xs text-teal-400 underline">一鍵重置篩選</button>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = dataList.map(stylist => {
-        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
-        const genderBadgeColor = stylist.gender === 'F' ? 'bg-[#EBBFCB] text-zinc-950' : 'bg-[#89C4E6] text-zinc-950';
-        const genderLabel = stylist.gender === 'F' ? '女髮型師' : '男髮型師';
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
-        const startingPrice = stylist.price_starting || 250;
-        const igName = stylist.ig_handle || 'stylist';
-
-        return `
-          <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900 transition">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg shrink-0">
-                  ${stylist.name.charAt(0)}
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
-                    <span class="text-[10px] ${genderBadgeColor} font-bold px-1.5 py-0.5 rounded">${genderLabel}</span>
-                  </div>
-                  <span class="text-xs bg-teal-50 text-teal-700 px-2 py-0.5 rounded border border-teal-200 font-medium">${stylist.district}</span>
-                  <span class="text-xs text-zinc-600 ml-1 font-medium">${stylist.shop_name}</span>
-                </div>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] text-zinc-400 block">門檻起步價</span>
-                <span class="text-base font-extrabold text-teal-600">HK$ ${startingPrice}</span>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap gap-1.5 mb-4">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full border border-zinc-200 font-medium">#${t}</span>`).join('')}
-            </div>
-
-            <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-              <a href="https://instagram.com/${igName}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold border border-zinc-300/80 transition">
-                <i class="fa-brands fa-instagram text-pink-500"></i> IG 作品
-              </a>
-              <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold border border-zinc-300/80 transition flex items-center justify-center gap-1">
-                <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約
-              </a>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function applyFilters() {
-      const selectedDistrict = document.getElementById('districtFilter').value;
-
-      currentFilteredData = rawStylistsData.filter(stylist => {
-        const matchDistrict = (selectedDistrict === 'ALL') || (stylist.district === selectedDistrict);
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
-        const matchTag = (!activeTag) || (tagsArr.includes(activeTag));
-        return matchDistrict && matchTag;
-      });
-
-      renderMarkers(currentFilteredData);
-      renderListView(currentFilteredData);
-
-      if (selectedDistrict !== 'ALL' && currentFilteredData.length > 0) {
-        map.flyTo([currentFilteredData[0].lat, currentFilteredData[0].lng], 14);
-      }
-    }
-
-    function toggleTagFilter(tag) {
-      if (activeTag === tag) {
-        activeTag = null;
-      } else {
-        activeTag = tag;
-      }
-
-      document.querySelectorAll('.tag-btn').forEach(btn => {
-        if (btn.innerText.includes(tag) && activeTag === tag) {
-          btn.classList.add('bg-teal-500/20', 'border-teal-500', 'text-teal-300');
-        } else {
-          btn.classList.remove('bg-teal-500/20', 'border-teal-500', 'text-teal-300');
-        }
-      });
-
-      applyFilters();
-    }
-
-    function resetFilters() {
-      document.getElementById('districtFilter').value = 'ALL';
-      activeTag = null;
-      document.querySelectorAll('.tag-btn').forEach(btn => {
-        btn.classList.remove('bg-teal-500/20', 'border-teal-500', 'text-teal-300');
-      });
-      applyFilters();
-      map.flyTo([22.3193, 114.1694], 13);
-    }
-
-    function toggleView() {
-      isListView = !isListView;
-      const listView = document.getElementById('listView');
-      const toggleText = document.getElementById('toggleText');
-      const toggleIcon = document.getElementById('toggleIcon');
-
-      if (isListView) {
-        listView.classList.remove('hidden');
-        toggleText.innerText = "切換為地圖視角";
-        toggleIcon.className = "fa-solid fa-map-location-dot";
-      } else {
-        listView.classList.add('hidden');
-        toggleText.innerText = "切換為列表視角";
-        toggleIcon.className = "fa-solid fa-list-ul";
-      }
-    }
-
-    /* 彈窗 Modal 控制 */
-    function showHelpModal() { document.getElementById('helpModal').classList.remove('hidden'); }
-    function closeHelpModal() { document.getElementById('helpModal').classList.add('hidden'); }
-    function showApplyModal() { document.getElementById('applyModal').classList.remove('hidden'); }
-    function closeApplyModal() { document.getElementById('applyModal').classList.add('hidden'); }
-
-    /* 提交自薦申請至 Supabase pending_hairstylists */
     async function submitApplication(event) {
       event.preventDefault();
       
