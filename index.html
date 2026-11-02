@@ -199,7 +199,6 @@
           </div>
         </div>
 
-        <!-- 新增：設定日後修改用的編輯密碼 -->
         <div>
           <label class="block text-teal-400 mb-1 font-bold">🔐 設定編輯密碼 (4-6位數字) *</label>
           <input type="password" id="applyPin" required maxlength="6" placeholder="例如: 8888 (日後修改資料需憑此密碼)" class="w-full bg-zinc-800 border border-teal-500/60 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-teal-400">
@@ -284,7 +283,7 @@
     let activeTag = null;
     let isListView = false;
     let miniMap = null, miniMarker = null;
-    let targetEditingId = null; // 當前正準備修改的 ID
+    let targetEditingId = null;
 
     window.onload = async function() {
       map = L.map('map', { zoomControl: false }).setView([22.3193, 114.1694], 13);
@@ -312,7 +311,7 @@
 
     function getWhatsAppLink(phone, name) {
       const cleanPhone = String(phone).replace(/\D/g, '');
-      return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】看到 ${name} 的專頁，想查詢預約...`)}`;
+      return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】看到 ${name} 的專頁，想查詢與預約剪髮/電染服務...`)}`;
     }
 
     function applyMapFilter(dark) {
@@ -350,6 +349,8 @@
 
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
+        const startingPrice = stylist.price_starting || 250;
+        const igName = stylist.ig_handle || 'stylist';
 
         const popupContent = `
           <div class="w-64 p-1 text-zinc-900 bg-white">
@@ -360,17 +361,21 @@
                 <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
               </div>
             </div>
+            
             <div class="flex flex-wrap gap-1 mb-3">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('')}
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200 font-medium">#${t}</span>`).join('')}
             </div>
+
             <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
               <div>
-                <span class="text-[10px] text-zinc-400 block">起步價</span>
-                <span class="text-sm font-extrabold text-teal-600">HK$ ${stylist.price_starting || 250}</span>
+                <span class="text-[10px] text-zinc-400 block">門檻起步價</span>
+                <span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span>
               </div>
+              <!-- 恢復舊版精美按鈕：IG + WhatsApp + 編輯按鈕 -->
               <div class="flex gap-1">
-                <a href="${waLink}" target="_blank" class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp"></i> 預約</a>
-                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold" title="修改資料"><i class="fa-solid fa-pen"></i></button>
+                ${stylist.ig_handle ? `<a href="https://instagram.com/${igName}" target="_blank" rel="noopener noreferrer" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg border border-zinc-300 font-medium flex items-center gap-0.5"><i class="fa-brands fa-instagram text-pink-500"></i> IG</a>` : ''}
+                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg border border-zinc-300 font-bold flex items-center gap-0.5"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
+                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold border border-zinc-300" title="修改資料"><i class="fa-solid fa-pen"></i></button>
               </div>
             </div>
           </div>
@@ -382,29 +387,56 @@
     function renderListView(dataList) {
       const container = document.getElementById('stylistListContainer');
       if (dataList.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">暫無符合條件的髮型師</p></div>`;
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500"><i class="fa-solid fa-scissors text-3xl mb-2 block"></i><p class="text-sm">暫無符合條件的髮型師</p></div>`;
         return;
       }
-      container.innerHTML = dataList.map(stylist => `
-        <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900 transition">
-          <div class="flex items-start justify-between mb-3">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
-              <div>
-                <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
-                <span class="text-xs text-teal-700">${stylist.shop_name} (${stylist.district})</span>
+      container.innerHTML = dataList.map(stylist => {
+        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
+        const genderBadgeColor = stylist.gender === 'F' ? 'bg-[#EBBFCB] text-zinc-950' : 'bg-[#89C4E6] text-zinc-950';
+        const genderLabel = stylist.gender === 'F' ? '女髮型師' : '男髮型師';
+        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
+        const startingPrice = stylist.price_starting || 250;
+        const igName = stylist.ig_handle || 'stylist';
+
+        return `
+          <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900 transition">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg shrink-0">${stylist.name.charAt(0)}</div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
+                    <span class="text-[10px] ${genderBadgeColor} font-bold px-1.5 py-0.5 rounded">${genderLabel}</span>
+                  </div>
+                  <span class="text-xs bg-teal-50 text-teal-700 px-2 py-0.5 rounded border border-teal-200 font-medium">${stylist.district}</span>
+                  <span class="text-xs text-zinc-600 ml-1 font-medium">${stylist.shop_name}</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-zinc-400 block">門檻起步價</span>
+                <span class="text-base font-extrabold text-teal-600">HK$ ${startingPrice}</span>
               </div>
             </div>
-            <div class="text-right">
-              <span class="text-xs font-bold text-teal-600">HK$ ${stylist.price_starting} 起</span>
+
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full border border-zinc-200 font-medium">#${t}</span>`).join('')}
+            </div>
+
+            <!-- 恢復舊版列表視角的 IG 與 WhatsApp 按鈕，並加入修改資料按鈕 -->
+            <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
+              <a href="https://instagram.com/${igName}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold border border-zinc-300/80 transition">
+                <i class="fa-brands fa-instagram text-pink-500"></i> IG 作品
+              </a>
+              <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold border border-zinc-300/80 transition flex items-center justify-center gap-1">
+                <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約
+              </a>
+              <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold border border-zinc-300" title="修改資料">
+                <i class="fa-solid fa-pen"></i>
+              </button>
             </div>
           </div>
-          <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-            <a href="${getWhatsAppLink(stylist.whatsapp, stylist.name)}" target="_blank" class="flex-1 bg-emerald-600 text-white text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp"></i> WhatsApp 預約</a>
-            <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold border border-zinc-300"><i class="fa-solid fa-pen"></i> 修改資料</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // 開啟修改 Modal
@@ -440,13 +472,11 @@
           return;
         }
 
-        // 比對密碼 (若當初沒設過 pin，允許預設或比對)
         if (data.edit_pin && data.edit_pin !== pin) {
           alert('❌ 密碼錯誤！無法解鎖修改權限。');
           return;
         }
 
-        // 密碼正確，填入表單並切換畫面
         document.getElementById('editStylistId').value = data.id;
         document.getElementById('editName').value = data.name || '';
         document.getElementById('editShop').value = data.shop_name || '';
@@ -485,7 +515,7 @@
         } else {
           alert('🎉 個人資料已成功更新！');
           closeEditModal();
-          await fetchStylists(); // 重新載入地圖資料
+          await fetchStylists();
         }
       } catch (err) {
         alert('更新發生異常');
@@ -560,7 +590,7 @@
         tags: tags,
         ig_handle: document.getElementById('applyIg').value.trim(),
         whatsapp: document.getElementById('applyWa').value.trim(),
-        edit_pin: document.getElementById('applyPin').value.trim(), // 儲存編輯密碼
+        edit_pin: document.getElementById('applyPin').value.trim(),
         lat: parseFloat(document.getElementById('applyLat').value),
         lng: parseFloat(document.getElementById('applyLng').value),
         status: 'pending'
