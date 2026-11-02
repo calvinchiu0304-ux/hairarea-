@@ -128,20 +128,35 @@
     </div>
   </main>
 
-  <!-- View 2: 🏠 上門理髮告示板 -->
+  <!-- View 2: 🏠 上門理髮告示板 (附帶地區篩選功能) -->
   <main id="boardMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
     <div class="max-w-xl mx-auto space-y-4">
-      <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
         <div>
           <h2 class="font-bold text-base text-amber-400 flex items-center gap-2">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> 顧客上門需求許願池
+            <i class="fa-solid fa-house-chimney-user"></i> 髮型師上門接單告示板
           </h2>
-          <p class="text-xs text-zinc-400 mt-0.5">髮型師可在此瀏覽顧客發布的上門需求並直接 WhatsApp 聯繫接單！</p>
+          <p class="text-xs text-zinc-400 mt-0.5">根據地區精準篩選顧客需求，一鍵 WhatsApp 聯繫報價接單！</p>
         </div>
         <button onclick="showWishModal()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold px-3 py-2 rounded-xl transition shrink-0 active:scale-95 shadow-md">
-          🙋 我要許願
+          🙋 我要許願 (發布需求)
         </button>
       </div>
+
+      <!-- 📍 告示板專用地區篩選列 -->
+      <div class="flex items-center gap-2 bg-zinc-900/80 border border-zinc-800 p-2.5 rounded-xl">
+        <span class="text-xs text-zinc-400 font-bold pl-1"><i class="fa-solid fa-filter"></i> 篩選地區：</span>
+        <select id="boardDistrictFilter" onchange="filterBoardRequests()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-amber-500">
+          <option value="ALL">📍 全部地區</option>
+          <option value="旺角">旺角</option>
+          <option value="銅鑼灣">銅鑼灣</option>
+          <option value="尖沙咀">尖沙咀</option>
+          <option value="沙田">沙田</option>
+          <option value="其他地區">其他地區</option>
+        </select>
+      </div>
+
+      <!-- 需求清單容器 -->
       <div id="homeServiceBoardContainer" class="space-y-3"></div>
     </div>
   </main>
@@ -174,7 +189,7 @@
     </div>
   </div>
 
-  <!-- 📸 成為髮型模特兒報名 Modal (附帶圖片自動壓縮防錯) -->
+  <!-- 📸 成為髮型模特兒報名 Modal -->
   <div id="modelModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-pink-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto">
       <button onclick="closeModelModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -265,7 +280,7 @@
           <textarea id="wishNotes" rows="2" placeholder="詳細地址或特殊需求..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-amber-500"></textarea>
         </div>
         <button type="submit" class="w-full mt-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
-          公開發布需求至告示板
+          確認提交需求
         </button>
       </form>
     </div>
@@ -402,6 +417,7 @@
     let isDarkTheme = true;
     let rawStylistsData = [];
     let currentFilteredData = [];
+    let rawBoardData = []; // 儲存上門需求原始資料
     let activeTag = null;
     let isListView = false;
     let miniMap = null, miniMarker = null;
@@ -446,35 +462,52 @@
     }
 
     async function fetchHomeServiceBoard() {
-      const container = document.getElementById('homeServiceBoardContainer');
       try {
         const { data, error } = await supabaseClient.from('home_service_requests').select('*').order('created_at', { ascending: false });
-        if (error || !data || data.length === 0) {
-          container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-3xl mb-2 block text-amber-500/50"></i><p class="text-sm">暫無公開發布的上門需求</p></div>`;
-          return;
-        }
-        container.innerHTML = data.map(req => {
-          const cleanPhone = String(req.whatsapp || '').replace(/\D/g, '');
-          const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】告示板看到您的上門理髮需求（${req.service_type} - ${req.district}），想向您查詢與報價...`)}`;
-          return `
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-md text-zinc-100 transition hover:border-amber-500/40 space-y-2">
-              <div class="flex items-start justify-between">
-                <div>
-                  <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">${req.service_type || '上門理髮'}</span>
-                  <h3 class="font-bold text-base text-zinc-100 mt-1">${req.customer_name} 📍 ${req.district}</h3>
-                </div>
-                <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1 shrink-0 active:scale-95 shadow-md">
-                  <i class="fa-brands fa-whatsapp text-sm"></i> 一鍵接單報價
-                </a>
+        if (error) { rawBoardData = []; }
+        else { rawBoardData = data || []; }
+        filterBoardRequests(); // 套用地區篩選渲染
+      } catch (err) {
+        rawBoardData = [];
+        filterBoardRequests();
+      }
+    }
+
+    // 📍 根據地區篩選告示板需求
+    function filterBoardRequests() {
+      const container = document.getElementById('homeServiceBoardContainer');
+      const selectedDistrict = document.getElementById('boardDistrictFilter').value;
+
+      const filtered = rawBoardData.filter(req => {
+        return selectedDistrict === 'ALL' || req.district === selectedDistrict;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-3xl mb-2 block text-amber-500/50"></i><p class="text-sm">暫無此地區的公開上門需求</p></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(req => {
+        const cleanPhone = String(req.whatsapp || '').replace(/\D/g, '');
+        const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】告示板看到您的上門理髮需求（${req.service_type} - ${req.district}），想向您查詢與報價...`)}`;
+        return `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-md text-zinc-100 transition hover:border-amber-500/40 space-y-2">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-bold">${req.service_type || '上門理髮'}</span>
+                <h3 class="font-bold text-base text-zinc-100 mt-1">${req.customer_name} 📍 ${req.district}</h3>
               </div>
-              <div class="text-xs text-zinc-300 space-y-1 bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-800/80">
-                <p>🗓️ <strong>期望時間：</strong> ${req.preferred_date || '彈性/待議'}</p>
-                <p>📝 <strong>需求備註：</strong> ${req.notes || '無特殊備註'}</p>
-              </div>
+              <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1 shrink-0 active:scale-95 shadow-md">
+                <i class="fa-brands fa-whatsapp text-sm"></i> 一鍵接單報價
+              </a>
             </div>
-          `;
-        }).join('');
-      } catch (err) { container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">載入告示板時發生錯誤</p></div>`; }
+            <div class="text-xs text-zinc-300 space-y-1 bg-zinc-950/50 p-2.5 rounded-xl border border-zinc-800/80">
+              <p>🗓️ <strong>期望時間：</strong> ${req.preferred_date || '彈性/待議'}</p>
+              <p>📝 <strong>需求備註：</strong> ${req.notes || '無特殊備註'}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // 📸 模特兒報名與 Canvas 自動壓縮相片防錯邏輯
@@ -497,7 +530,6 @@
         const img = new Image();
         img.src = event.target.result;
         img.onload = async function() {
-          // Canvas 自動等比例壓縮 (最大寬高 800px，確保體系輕量化不超載)
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
@@ -514,7 +546,6 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          // 轉為高品質壓縮的 JPEG Base64
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
           const payload = {
@@ -564,10 +595,10 @@
         if (error) {
           alert('發布失敗: ' + error.message);
         } else {
-          alert('🎉 上門需求發布成功！');
+          alert('🎉 上門需求發布成功！您可以隨時透過上方「上門理髮告示板」查看。');
           document.getElementById('wishForm').reset();
           closeWishModal();
-          switchMainTab('board');
+          await fetchHomeServiceBoard(); // 背景重新載入資料
         }
       } catch (err) {
         alert('網路連線異常，請檢查網絡後重試。');
