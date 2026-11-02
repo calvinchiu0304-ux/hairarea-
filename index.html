@@ -32,7 +32,7 @@
     #map { height: 100vh; width: 100%; z-index: 1; background-color: #18181b; }
     .dark-map-tile { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
     .leaflet-marker-pane, .leaflet-popup-pane { filter: none !important; }
-        .leaflet-popup-content-wrapper {
+    .leaflet-popup-content-wrapper {
       background: #ffffff !important; 
       color: #18181b !important;
       border-radius: 16px !important; 
@@ -47,7 +47,6 @@
       min-width: 220px !important; 
       line-height: 1.4 !important;
     }
-
     .leaflet-control-zoom { display: none !important; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -231,6 +230,7 @@
         <div>
           <label class="block text-pink-400 mb-1 font-bold">📸 上傳頭髮現狀相片 (必填) *</label>
           <input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs">
+          <p class="text-[10px] text-zinc-500 mt-1">⚠️ 系統將自動優化相片大小，確保秒速上傳成功。</p>
         </div>
         <button type="submit" id="modelSubmitBtn" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">
           提交登記 (進入私密模特兒庫)
@@ -571,90 +571,6 @@
       renderMarkers(currentFilteredData);
       renderListView(currentFilteredData);
     }
-        function renderMarkers(dataList) {
-      markersGroup.clearLayers();
-      dataList.forEach(stylist => {
-        const bgColor = stylist.gender === 'F' ? '#EBBFCB' : '#89C4E6';
-        const customIcon = L.divIcon({
-          className: 'custom-pin',
-          html: `<div style="background-color: ${bgColor};" class="text-zinc-950 font-bold text-xs px-2.5 py-1 rounded-full shadow-md border border-white/80 flex items-center gap-1 hover:scale-110 transition cursor-pointer"><span>✂️ ${stylist.name}</span></div>`,
-          iconSize: [95, 30], iconAnchor: [47, 15]
-        });
-        
-        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
-        const igUrl = getIgLink(stylist.ig_handle);
-        
-        let tagsArr = [];
-        if (Array.isArray(stylist.tags)) {
-          tagsArr = stylist.tags;
-        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
-          tagsArr = stylist.tags.split(',').map(t => t.trim());
-        }
-        
-        const startingPrice = stylist.price_starting || 250;
-        
-        const popupContent = `
-          <div class="w-64 p-1 text-zinc-900 bg-white">
-            <div class="flex items-center gap-3 mb-2">
-              <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
-              <div>
-                <h4 class="font-bold text-base text-zinc-900 leading-tight">${stylist.name}</h4>
-                <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-1 mb-3">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('')}
-            </div>
-            <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
-              <div><span class="text-[10px] text-zinc-400 block">起步價</span><span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
-              <div class="flex gap-1 items-center">
-                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
-                <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
-                <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
-              </div>
-            </div>
-          </div>
-        `;
-        L.marker([stylist.lat, stylist.lng], { icon: customIcon }).addTo(markersGroup).bindPopup(popupContent);
-      });
-    }
-
-    function renderListView(dataList) {
-      const container = document.getElementById('stylistListContainer');
-      if (dataList.length === 0) { container.innerHTML = `<div class="text-center py-12 text-zinc-500"><p class="text-sm">暫無符合條件的髮型師</p></div>`; return; }
-      container.innerHTML = dataList.map(stylist => {
-        const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
-        const igUrl = getIgLink(stylist.ig_handle);
-        let tagsArr = [];
-        if (Array.isArray(stylist.tags)) {
-          tagsArr = stylist.tags;
-        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
-          tagsArr = stylist.tags.split(',').map(t => t.trim());
-        }
-        return `
-          <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full border border-teal-500 bg-zinc-100 flex items-center justify-center font-bold text-teal-800 text-lg">${stylist.name.charAt(0)}</div>
-                <div>
-                  <h3 class="font-bold text-base text-zinc-900">${stylist.name}</h3>
-                  <span class="text-xs text-teal-700 font-medium">${stylist.district} · ${stylist.shop_name}</span>
-                </div>
-              </div>
-              <span class="text-base font-extrabold text-teal-600">HK$ ${stylist.price_starting || 250}</span>
-            </div>
-            <div class="flex flex-wrap gap-1.5 mb-4">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('')}
-            </div>
-            <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
-              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約</a>
-              <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold"><i class="fa-solid fa-pen"></i></button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
 
     function getWhatsAppLink(phone, name) {
       const cleanPhone = String(phone).replace(/\D/g, '');
@@ -693,9 +609,17 @@
           html: `<div style="background-color: ${bgColor};" class="text-zinc-950 font-bold text-xs px-2.5 py-1 rounded-full shadow-md border border-white/80 flex items-center gap-1 hover:scale-110 transition cursor-pointer"><span>✂️ ${stylist.name}</span></div>`,
           iconSize: [95, 30], iconAnchor: [47, 15]
         });
+        
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const igUrl = getIgLink(stylist.ig_handle);
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
+        
+        let tagsArr = [];
+        if (Array.isArray(stylist.tags)) {
+          tagsArr = stylist.tags;
+        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
+          tagsArr = stylist.tags.split(',').map(t => t.trim());
+        }
+        
         const startingPrice = stylist.price_starting || 250;
         
         const popupContent = `
@@ -707,14 +631,18 @@
                 <p class="text-xs text-teal-700 font-medium"><i class="fa-solid fa-store"></i> ${stylist.shop_name}</p>
               </div>
             </div>
-            <div class="flex flex-wrap gap-1 mb-3">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('')}
+            
+            <div class="flex flex-wrap gap-1 mb-3 min-h-[22px]">
+              ${tagsArr.length > 0 
+                ? tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-[10px] px-2 py-0.5 rounded border border-zinc-200">#${t}</span>`).join('') 
+                : `<span class="text-[10px] text-zinc-400 italic">#暫無風格標籤</span>`}
             </div>
+
             <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
               <div><span class="text-[10px] text-zinc-400 block">起步價</span><span class="text-sm font-extrabold text-teal-600">HK$ ${startingPrice}</span></div>
-              <div class="flex gap-1">
-                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
-                <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> 預約</a>
+              <div class="flex gap-1 items-center">
+                ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-brands fa-instagram text-sm"></i> IG</a>` : ''}
+                <a href="${waLink}" target="_blank" class="bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold flex items-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> 預約</a>
                 <button onclick="openEditModal(${stylist.id})" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-800 text-xs px-2 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-pen"></i></button>
               </div>
             </div>
@@ -730,7 +658,14 @@
       container.innerHTML = dataList.map(stylist => {
         const waLink = getWhatsAppLink(stylist.whatsapp, stylist.name);
         const igUrl = getIgLink(stylist.ig_handle);
-        const tagsArr = Array.isArray(stylist.tags) ? stylist.tags : [];
+        
+        let tagsArr = [];
+        if (Array.isArray(stylist.tags)) {
+          tagsArr = stylist.tags;
+        } else if (typeof stylist.tags === 'string' && stylist.tags.trim() !== '') {
+          tagsArr = stylist.tags.split(',').map(t => t.trim());
+        }
+
         return `
           <div class="bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg text-zinc-900">
             <div class="flex items-start justify-between mb-3">
@@ -744,11 +679,13 @@
               <span class="text-base font-extrabold text-teal-600">HK$ ${stylist.price_starting || 250}</span>
             </div>
             <div class="flex flex-wrap gap-1.5 mb-4">
-              ${tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('')}
+              ${tagsArr.length > 0 
+                ? tagsArr.map(t => `<span class="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-full">#${t}</span>`).join('') 
+                : `<span class="text-xs text-zinc-400 italic">#暫無風格標籤</span>`}
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-zinc-100">
-              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1"><i class="fa-brands fa-instagram"></i> IG</a>` : ''}
-              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold"><i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp 預約</a>
+              ${igUrl ? `<a href="${igUrl}" target="_blank" class="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white text-xs px-3 py-2 rounded-xl font-bold flex items-center gap-1 shadow-sm"><i class="fa-brands fa-instagram text-sm"></i> IG</a>` : ''}
+              <a href="${waLink}" target="_blank" class="flex-1 bg-[#EFEFEF] hover:bg-[#DBDBDB] text-zinc-800 text-xs py-2 rounded-xl text-center font-bold flex items-center justify-center gap-1"><i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> WhatsApp 預約</a>
               <button onclick="openEditModal(${stylist.id})" class="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs px-3 py-2 rounded-xl font-bold"><i class="fa-solid fa-pen"></i></button>
             </div>
           </div>
@@ -818,7 +755,6 @@
       });
     }
 
-    // 🔍 乾淨且正確的自薦提交函數
     async function submitApplication(e) {
       e.preventDefault();
       const tags = Array.from(document.querySelectorAll('.select-tag-btn.selected')).map(b => b.getAttribute('data-tag'));
