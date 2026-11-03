@@ -291,6 +291,8 @@
           <div><label class="block text-zinc-400 mb-1">聯絡 WhatsApp *</label><input type="text" id="prodWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         </div>
         <div><label class="block text-purple-400 mb-1 font-bold">📸 上傳商品相片 *</label><input type="file" id="prodPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-purple-500/50 rounded-lg p-2 text-zinc-300 text-xs"></div>
+        <!-- 💡 90日清理提示文字 -->
+        <p class="text-[11px] text-zinc-400 bg-purple-950/30 border border-purple-500/20 p-2 rounded-lg"><i class="fa-solid fa-circle-info text-purple-400"></i> 提示：為保持市集資訊最新與流暢，此貼文將於發布 90 天後由系統自動清理。</p>
         <button type="submit" class="w-full mt-2 bg-purple-500 hover:bg-purple-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">上架刊登商品</button>
       </form>
     </div>
@@ -316,6 +318,8 @@
           <div><label class="block text-zinc-400 mb-1">報名 WhatsApp *</label><input type="text" id="courseWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         </div>
         <div><label class="block text-zinc-400 mb-1">課程大綱與簡介</label><textarea id="courseDesc" rows="3" placeholder="簡述課程教學重點與實操內容..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></textarea></div>
+        <!-- 💡 90日清理提示文字 -->
+        <p class="text-[11px] text-zinc-400 bg-cyan-950/30 border border-cyan-500/20 p-2 rounded-lg"><i class="fa-solid fa-circle-info text-cyan-400"></i> 提示：為保持課程資訊最新與流暢，此貼文將於發布 90 天後由系統自動清理。</p>
         <button type="submit" class="w-full mt-2 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">發布課程招生</button>
       </form>
     </div>
@@ -365,6 +369,8 @@
         <div><label class="block text-zinc-400 mb-1">聯絡 WhatsApp *</label><input type="text" id="wishWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         <div><label class="block text-zinc-400 mb-1">期望日期/時間</label><input type="text" id="wishDate" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
         <div><label class="block text-zinc-400 mb-1">備註說明</label><textarea id="wishNotes" rows="2" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></textarea></div>
+        <!-- 💡 90日清理提示文字 -->
+        <p class="text-[11px] text-zinc-400 bg-amber-950/30 border border-amber-500/20 p-2 rounded-lg"><i class="fa-solid fa-circle-info text-amber-400"></i> 提示：為保持許願池資訊最新與流暢，此貼文將於發布 90 天後由系統自動清理。</p>
         <button type="submit" class="w-full mt-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">確認提交需求</button>
       </form>
     </div>
@@ -480,8 +486,11 @@
         }, () => {});
       }
 
-      // 初始化表單 localStorage 自動暫存與恢復
+      // 1. 初始化表單 localStorage 自動暫存與恢復
       initFormDrafts();
+
+      // 2. 💡 檢查是否有未完成的草稿，若有則自動彈出對應視窗
+      checkAndRestoreOpenModal();
 
       await fetchStylists();
     };
@@ -529,6 +538,29 @@
           localStorage.removeItem(cfg.key);
         });
       });
+    }
+
+    // 💡 檢查草稿並自動打開對應 Modal
+    function checkAndRestoreOpenModal() {
+      try {
+        const applyDraft = localStorage.getItem('draft_apply');
+        const modelDraft = localStorage.getItem('draft_model');
+        const wishDraft = localStorage.getItem('draft_wish');
+        const productDraft = localStorage.getItem('draft_product');
+        const courseDraft = localStorage.getItem('draft_course');
+
+        if (applyDraft && JSON.parse(applyDraft).applyName) {
+          showApplyModal();
+        } else if (modelDraft && JSON.parse(modelDraft).modelName) {
+          showModelModal();
+        } else if (wishDraft && JSON.parse(wishDraft).wishName) {
+          showWishModal();
+        } else if (productDraft && JSON.parse(productDraft).prodTitle) {
+          showAddProductModal();
+        } else if (courseDraft && JSON.parse(courseDraft).courseName) {
+          showAddCourseModal();
+        }
+      } catch (e) { console.error('Restore modal error', e); }
     }
 
     // 🔀 四大主視角切換控制
@@ -640,7 +672,8 @@
             delivery_method: document.getElementById('prodDelivery').value.trim() || '面交/順豐',
             seller_name: document.getElementById('prodSeller').value.trim(),
             whatsapp: document.getElementById('prodWa').value.trim(),
-            photo_base64: canvas.toDataURL('image/jpeg', 0.7)
+            photo_base64: canvas.toDataURL('image/jpeg', 0.7),
+            updated_at: new Date().toISOString() // 💡 確保每次提交更新時間，重新計算 90 天
           };
           const { error } = await supabaseClient.from('hair_products').insert([payload]);
           if (error) alert('提交失敗: ' + error.message);
@@ -705,7 +738,8 @@
         location: document.getElementById('courseLocation').value.trim(),
         date_info: document.getElementById('dateInfo').value.trim(),
         whatsapp: document.getElementById('courseWa').value.trim(),
-        description: document.getElementById('courseDesc').value.trim()
+        description: document.getElementById('courseDesc').value.trim(),
+        updated_at: new Date().toISOString()
       };
       const { error } = await supabaseClient.from('hair_courses').insert([payload]);
       if (error) alert('發布失敗: ' + error.message);
@@ -851,7 +885,15 @@
 
     async function submitWishRequest(e) {
       e.preventDefault();
-      const payload = { customer_name: document.getElementById('wishName').value.trim(), district: document.getElementById('wishDistrict').value, service_type: document.getElementById('wishServiceType').value, whatsapp: document.getElementById('wishWa').value.trim(), preferred_date: document.getElementById('wishDate').value.trim(), notes: document.getElementById('wishNotes').value.trim() };
+      const payload = { 
+        customer_name: document.getElementById('wishName').value.trim(), 
+        district: document.getElementById('wishDistrict').value, 
+        service_type: document.getElementById('wishServiceType').value, 
+        whatsapp: document.getElementById('wishWa').value.trim(), 
+        preferred_date: document.getElementById('wishDate').value.trim(), 
+        notes: document.getElementById('wishNotes').value.trim(),
+        updated_at: new Date().toISOString() // 💡 確保每次提交更新時間，重新計算 90 天
+      };
       const { error } = await supabaseClient.from('home_service_requests').insert([payload]);
       if (error) alert('發布失敗: ' + error.message);
       else { alert('🎉 上門需求發布成功！'); document.getElementById('wishForm').reset(); closeWishModal(); fetchHomeServiceBoard(); }
