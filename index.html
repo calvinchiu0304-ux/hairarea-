@@ -486,8 +486,11 @@
         }, () => {});
       }
 
-      // 初始化表單 localStorage 自動暫存與恢復 (已取消自動彈出視窗)
+      // 1. 初始化表單 localStorage 自動暫存與恢復
       initFormDrafts();
+
+      // 2. 💡 檢查若有未完成的草稿，自動打開對應的 Modal 並保留畫面資料
+      checkAndRestoreOpenModal();
 
       await fetchStylists();
     };
@@ -506,7 +509,7 @@
         const form = document.getElementById(cfg.formId);
         if (!form) return;
 
-        // 1. 頁面載入時默默恢復暫存資料到輸入框 (不強制彈出 Modal)
+        // 1. 頁面載入時恢復暫存資料
         const saved = localStorage.getItem(cfg.key);
         if (saved) {
           try {
@@ -535,6 +538,29 @@
           localStorage.removeItem(cfg.key);
         });
       });
+    }
+
+    // 💡 檢查草稿並「自動打開」對應的 Modal 視窗，保留打到一半的資料
+    function checkAndRestoreOpenModal() {
+      try {
+        const applyDraft = localStorage.getItem('draft_apply');
+        const modelDraft = localStorage.getItem('draft_model');
+        const wishDraft = localStorage.getItem('draft_wish');
+        const productDraft = localStorage.getItem('draft_product');
+        const courseDraft = localStorage.getItem('draft_course');
+
+        if (applyDraft && JSON.parse(applyDraft).applyName) {
+          showApplyModal();
+        } else if (modelDraft && JSON.parse(modelDraft).modelName) {
+          showModelModal();
+        } else if (wishDraft && JSON.parse(wishDraft).wishName) {
+          showWishModal();
+        } else if (productDraft && JSON.parse(productDraft).prodTitle) {
+          showAddProductModal();
+        } else if (courseDraft && JSON.parse(courseDraft).courseName) {
+          showAddCourseModal();
+        }
+      } catch (e) { console.error('Restore modal error', e); }
     }
 
     // 🔀 四大主視角切換控制
