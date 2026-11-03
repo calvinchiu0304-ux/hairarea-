@@ -486,11 +486,8 @@
         }, () => {});
       }
 
-      // 1. 初始化表單 localStorage 自動暫存與恢復
+      // 初始化表單 localStorage 自動暫存與恢復 (已取消自動彈出視窗)
       initFormDrafts();
-
-      // 2. 💡 檢查是否有未完成的草稿，若有則自動彈出對應視窗
-      checkAndRestoreOpenModal();
 
       await fetchStylists();
     };
@@ -509,7 +506,7 @@
         const form = document.getElementById(cfg.formId);
         if (!form) return;
 
-        // 1. 頁面載入時恢復暫存資料
+        // 1. 頁面載入時默默恢復暫存資料到輸入框 (不強制彈出 Modal)
         const saved = localStorage.getItem(cfg.key);
         if (saved) {
           try {
@@ -538,29 +535,6 @@
           localStorage.removeItem(cfg.key);
         });
       });
-    }
-
-    // 💡 檢查草稿並自動打開對應 Modal
-    function checkAndRestoreOpenModal() {
-      try {
-        const applyDraft = localStorage.getItem('draft_apply');
-        const modelDraft = localStorage.getItem('draft_model');
-        const wishDraft = localStorage.getItem('draft_wish');
-        const productDraft = localStorage.getItem('draft_product');
-        const courseDraft = localStorage.getItem('draft_course');
-
-        if (applyDraft && JSON.parse(applyDraft).applyName) {
-          showApplyModal();
-        } else if (modelDraft && JSON.parse(modelDraft).modelName) {
-          showModelModal();
-        } else if (wishDraft && JSON.parse(wishDraft).wishName) {
-          showWishModal();
-        } else if (productDraft && JSON.parse(productDraft).prodTitle) {
-          showAddProductModal();
-        } else if (courseDraft && JSON.parse(courseDraft).courseName) {
-          showAddCourseModal();
-        }
-      } catch (e) { console.error('Restore modal error', e); }
     }
 
     // 🔀 四大主視角切換控制
@@ -673,7 +647,7 @@
             seller_name: document.getElementById('prodSeller').value.trim(),
             whatsapp: document.getElementById('prodWa').value.trim(),
             photo_base64: canvas.toDataURL('image/jpeg', 0.7),
-            updated_at: new Date().toISOString() // 💡 確保每次提交更新時間，重新計算 90 天
+            updated_at: new Date().toISOString()
           };
           const { error } = await supabaseClient.from('hair_products').insert([payload]);
           if (error) alert('提交失敗: ' + error.message);
@@ -892,7 +866,7 @@
         whatsapp: document.getElementById('wishWa').value.trim(), 
         preferred_date: document.getElementById('wishDate').value.trim(), 
         notes: document.getElementById('wishNotes').value.trim(),
-        updated_at: new Date().toISOString() // 💡 確保每次提交更新時間，重新計算 90 天
+        updated_at: new Date().toISOString()
       };
       const { error } = await supabaseClient.from('home_service_requests').insert([payload]);
       if (error) alert('發布失敗: ' + error.message);
