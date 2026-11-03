@@ -168,12 +168,14 @@
         <button onclick="showAddTransferModal()" class="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold px-3.5 py-2 rounded-xl transition shrink-0 active:scale-95 shadow-md"><i class="fa-solid fa-plus"></i> 發布頂手/合作</button>
       </div>
 
-      <!-- 地區與模式篩選 -->
+      <!-- 地區與模式篩選（已升級為與地圖完全一致的精美按鈕式 18 區彈窗） -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-        <select id="transferDistrictFilter" onchange="onTransferDistrictChange(this.value)" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none">
-          <option value="ALL">📍 所有地區</option>
-          <option value="旺角">旺角</option><option value="尖沙咀">尖沙咀</option><option value="銅鑼灣">銅鑼灣</option><option value="觀塘">觀塘</option><option value="沙田">沙田</option><option value="荃灣">荃灣</option>
-        </select>
+        <button onclick="openDistrictModal()" class="bg-zinc-800 border border-emerald-500/50 hover:bg-zinc-700 text-xs text-emerald-300 rounded-lg px-3 py-1.5 flex items-center gap-1.5 font-bold transition shadow-md active:scale-95 shrink-0">
+          <i class="fa-solid fa-location-dot text-emerald-400"></i>
+          <span id="transferDistrictLabel">📍 所有地區</span>
+          <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+        </button>
+
         <button onclick="filterTransferType('ALL')" class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded-full font-bold">全部模式</button>
         <button onclick="filterTransferType('頂手轉讓')" class="text-xs bg-zinc-800 text-zinc-300 border border-zinc-700 px-3 py-1 rounded-full hover:border-emerald-500">#頂手轉讓</button>
         <button onclick="filterTransferType('鏡位招租')" class="text-xs bg-zinc-800 text-zinc-300 border border-zinc-700 px-3 py-1 rounded-full hover:border-emerald-500">#鏡位招租</button>
@@ -231,45 +233,64 @@
     </button>
   </div>
 
-  <!-- 📍 地區快速選擇彈窗 Modal (零延遲秒切換) -->
+  <!-- 📍 香港 18 區快速選擇彈窗 Modal (零延遲秒切換) -->
   <div id="districtModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-teal-500/50 rounded-2xl max-w-sm w-full p-5 relative shadow-2xl text-xs space-y-4">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
-        <h3 class="font-bold text-teal-400 text-sm flex items-center gap-2"><i class="fa-solid fa-location-dot"></i> 選擇瀏覽地區</h3>
+    <div class="bg-zinc-900 border border-teal-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl text-xs space-y-4 max-h-[85vh] overflow-y-auto no-scrollbar">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2 sticky top-0 bg-zinc-900 z-10">
+        <h3 class="font-bold text-teal-400 text-sm flex items-center gap-2"><i class="fa-solid fa-location-dot"></i> 選擇香港十八區瀏覽</h3>
         <button onclick="closeDistrictModal()" class="text-zinc-400 hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="space-y-3 max-h-[60vh] overflow-y-auto no-scrollbar">
+      <div class="space-y-4">
         <button onclick="selectDistrict('ALL', '📍 全港所有地區')" class="w-full text-left bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 p-3 rounded-xl font-bold transition flex items-center justify-between">
           <span>📍 全港所有地區 (返回全部)</span>
           <i class="fa-solid fa-arrow-rotate-left"></i>
         </button>
 
+        <!-- 九龍區 -->
         <div>
           <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 九龍區</p>
           <div class="grid grid-cols-2 gap-1.5">
-            <button onclick="selectDistrict('旺角', '旺角')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">旺角</button>
             <button onclick="selectDistrict('尖沙咀', '尖沙咀')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">尖沙咀</button>
+            <button onclick="selectDistrict('旺角', '旺角')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">旺角</button>
+            <button onclick="selectDistrict('油麻地', '油麻地')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">油麻地</button>
+            <button onclick="selectDistrict('佐敦', '佐敦')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">佐敦</button>
+            <button onclick="selectDistrict('紅磡', '紅磡')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">紅磡</button>
             <button onclick="selectDistrict('觀塘', '觀塘')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">觀塘</button>
+            <button onclick="selectDistrict('黃大仙', '黃大仙')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">黃大仙</button>
             <button onclick="selectDistrict('深水埗', '深水埗')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">深水埗</button>
+            <button onclick="selectDistrict('九龍城', '九龍城')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">九龍城</button>
+            <button onclick="selectDistrict('九龍灣', '九龍灣')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">九龍灣</button>
           </div>
         </div>
 
+        <!-- 港島區 -->
         <div>
           <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 港島區</p>
           <div class="grid grid-cols-2 gap-1.5">
+            <button onclick="selectDistrict('中環', '中環')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">中環</button>
             <button onclick="selectDistrict('銅鑼灣', '銅鑼灣')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">銅鑼灣</button>
-            <button onclick="selectDistrict('中環', '中環 / 金鐘')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">中環 / 金鐘</button>
             <button onclick="selectDistrict('灣仔', '灣仔')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">灣仔</button>
+            <button onclick="selectDistrict('上環', '上環')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">上環</button>
+            <button onclick="selectDistrict('北角', '北角')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">北角</button>
+            <button onclick="selectDistrict('太古', '太古')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">太古</button>
+            <button onclick="selectDistrict('西營盤', '西營盤')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">西營盤</button>
+            <button onclick="selectDistrict('香港仔', '香港仔')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">香港仔</button>
           </div>
         </div>
 
+        <!-- 新界及離島區 -->
         <div>
-          <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 新界及離島</p>
+          <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 新界及離島區</p>
           <div class="grid grid-cols-2 gap-1.5">
-            <button onclick="selectDistrict('沙田', '沙田 / 馬鞍山')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">沙田 / 馬鞍山</button>
-            <button onclick="selectDistrict('荃灣', '荃灣 / 葵芳')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">荃灣 / 葵芳</button>
+            <button onclick="selectDistrict('沙田', '沙田')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">沙田</button>
+            <button onclick="selectDistrict('荃灣', '荃灣')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">荃灣</button>
+            <button onclick="selectDistrict('屯門', '屯門')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">屯門</button>
+            <button onclick="selectDistrict('元朗', '元朗')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">元朗</button>
             <button onclick="selectDistrict('將軍澳', '將軍澳')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">將軍澳</button>
+            <button onclick="selectDistrict('大埔', '大埔')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">大埔</button>
+            <button onclick="selectDistrict('葵芳', '葵芳')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">葵芳</button>
+            <button onclick="selectDistrict('東涌', '東涌')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">東涌</button>
           </div>
         </div>
       </div>
@@ -552,28 +573,21 @@
       if (tab === 'modelMatch') fetchModelMatches();
     }
 
-    // ⚡ 零延遲彈窗選單控制邏輯 (已修復與頂手大廳的地區同步)
+    // ⚡ 零延遲彈窗選單控制邏輯 (已完美聯動地圖與頂手大廳)
     function openDistrictModal() { document.getElementById('districtModal').classList.remove('hidden'); }
     function closeDistrictModal() { document.getElementById('districtModal').classList.add('hidden'); }
 
     function selectDistrict(val, label) {
       selectedDistrictValue = val;
-      document.getElementById('currentDistrictLabel').innerText = `📍 ${label}`;
       
-      // 同步更新頂手大廳內部的下拉選單
-      const transferSelect = document.getElementById('transferDistrictFilter');
-      if (transferSelect) {
-        transferSelect.value = val;
+      // 同步更新地圖與頂手大廳的按鈕文字
+      document.getElementById('currentDistrictLabel').innerText = `📍 ${label}`;
+      const transferLabel = document.getElementById('transferDistrictLabel');
+      if (transferLabel) {
+        transferLabel.innerText = `📍 ${label}`;
       }
 
       closeDistrictModal();
-      applyFilters();
-    }
-
-    function onTransferDistrictChange(val) {
-      selectedDistrictValue = val;
-      const labelMap = { 'ALL': '📍 全港所有地區', '旺角': '旺角', '尖沙咀': '尖沙咀', '銅鑼灣': '銅鑼灣', '觀塘': '觀塘', '沙田': '沙田', '荃灣': '荃灣' };
-      document.getElementById('currentDistrictLabel').innerText = `📍 ${labelMap[val] || val}`;
       applyFilters();
     }
 
@@ -704,13 +718,24 @@
     }
 
     function filterTransferType(mode) {
-      if (mode === 'ALL') { fetchTransferPosts(); return; }
       const container = document.getElementById('transferPostsContainer');
       if (!container) return;
-      const filtered = rawTransferData.filter(p => p.mode === mode && (selectedDistrictValue === 'ALL' || p.district === selectedDistrictValue));
+      
+      const now = new Date();
+      const validPosts = rawTransferData.filter(p => {
+        const createdAt = new Date(p.created_at);
+        const daysDiff = (now - createdAt) / (1000 * 60 * 60 * 24);
+        return daysDiff <= 30;
+      });
+
+      const filtered = validPosts.filter(p => {
+        const matchDistrict = (selectedDistrictValue === 'ALL' || p.district === selectedDistrictValue);
+        const matchMode = (mode === 'ALL' || p.mode === mode);
+        return matchDistrict && matchMode;
+      });
       
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前此模式尚無刊登中項目</p></div>`;
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前此條件尚無刊登中項目</p></div>`;
         return;
       }
 
