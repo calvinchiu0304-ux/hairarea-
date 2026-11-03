@@ -110,30 +110,35 @@
         <button id="tabModelMatchBtn" onclick="switchMainTab('modelMatch')" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition items-center gap-1 whitespace-nowrap hidden"><i class="fa-solid fa-user-check"></i> 📸 模特兒配對專區</button>
       </div>
 
-      <!-- 地圖專用全港 18 區統一地區篩選列 -->
+      <!-- 地圖專用全港 18 區統一地區篩選列 (已修復返回/全部地區切換) -->
       <div id="mapFilterRow" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-        <select id="districtFilter" onchange="applyFilters()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-teal-500">
-          <option value="ALL">📍 全港所有地區</option>
-          <optgroup label="九龍區">
-            <option value="旺角">旺角</option>
-            <option value="尖沙咀">尖沙咀</option>
-            <option value="觀塘">觀塘</option>
-            <option value="深水埗">深水埗</option>
-            <option value="九龍城">九龍城 / 黃大仙</option>
-          </optgroup>
-          <optgroup label="港島區">
-            <option value="銅鑼灣">銅鑼灣</option>
-            <option value="中環">中環 / 金鐘</option>
-            <option value="灣仔">灣仔</option>
-            <option value="北角">北角 / 鰂魚涌</option>
-          </optgroup>
-          <optgroup label="新界及離島">
-            <option value="沙田">沙田 / 馬鞍山</option>
-            <option value="荃灣">荃灣 / 葵芳</option>
-            <option value="元朗">元朗 / 屯門</option>
-            <option value="將軍澳">將軍澳</option>
-          </optgroup>
-        </select>
+        <div class="relative flex items-center">
+          <select id="districtFilter" onchange="applyFilters()" class="appearance-none bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg pl-3 pr-7 py-1.5 focus:outline-none focus:border-teal-500 font-medium">
+            <option value="ALL">📍 全港所有地區</option>
+            <optgroup label="九龍區">
+              <option value="旺角">旺角</option>
+              <option value="尖沙咀">尖沙咀</option>
+              <option value="觀塘">觀塘</option>
+              <option value="深水埗">深水埗</option>
+              <option value="九龍城">九龍城 / 黃大仙</option>
+            </optgroup>
+            <optgroup label="港島區">
+              <option value="銅鑼灣">銅鑼灣</option>
+              <option value="中環">中環 / 金鐘</option>
+              <option value="灣仔">灣仔</option>
+              <option value="北角">北角 / 鰂魚涌</option>
+            </optgroup>
+            <optgroup label="新界及離島">
+              <option value="沙田">沙田 / 馬鞍山</option>
+              <option value="荃灣">荃灣 / 葵芳</option>
+              <option value="元朗">元朗 / 屯門</option>
+              <option value="將軍澳">將軍澳</option>
+            </optgroup>
+          </select>
+          <div class="absolute right-2 pointer-events-none text-zinc-400 text-[10px]"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <button onclick="resetDistrictFilter()" class="text-xs shrink-0 bg-zinc-800 border border-zinc-700 hover:border-teal-500 text-teal-400 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 font-bold"><i class="fa-solid fa-arrow-rotate-left"></i> 返回全部</button>
+        
         <button onclick="toggleTagFilter('日系電髮')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#日系電髮</button>
         <button onclick="toggleTagFilter('Barber漸變')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#Barber漸變</button>
         <button onclick="toggleTagFilter('單剪速剪')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#單剪速剪</button>
@@ -173,7 +178,7 @@
     </div>
   </main>
 
-  <!-- View 3: 🏪 頂手 / 租位 / 商業合作大廳 (業界專屬 + 30天自動清理) -->
+  <!-- View 3: 🏪 頂手 / 租位 / 商業合作大廳 -->
   <main id="transferMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
     <div class="max-w-2xl mx-auto space-y-4">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-900 border border-emerald-500/50 p-4 rounded-2xl">
@@ -247,7 +252,7 @@
     </button>
   </div>
 
-  <!-- 🏪 發布頂手 / 租位 / 商業合作 Modal (支援相片上傳 + 手機手寫輸入) -->
+  <!-- 🏪 發布頂手 / 租位 / 商業合作 Modal -->
   <div id="addTransferModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-emerald-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto text-xs">
       <button onclick="closeAddTransferModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -521,6 +526,15 @@
       if (tab === 'modelMatch') fetchModelMatches();
     }
 
+    // 🔄 快速返回全部地區功能
+    function resetDistrictFilter() {
+      const select = document.getElementById('districtFilter');
+      if (select) {
+        select.value = 'ALL';
+        applyFilters();
+      }
+    }
+
     // 📍 讀取店鋪與掛靠髮型師資料
     async function fetchSalonsAndStylists() {
       try {
@@ -603,11 +617,10 @@
       const selectedDistrict = document.getElementById('transferDistrictFilter').value;
       const now = new Date();
 
-      // 🛡️ 30 天過期自動清理過濾機制
       const validPosts = rawTransferData.filter(p => {
         const createdAt = new Date(p.created_at);
         const daysDiff = (now - createdAt) / (1000 * 60 * 60 * 24);
-        return daysDiff <= 30; // 僅保留 30 天內貼文
+        return daysDiff <= 30;
       });
 
       const filtered = validPosts.filter(p => selectedDistrict === 'ALL' || p.district === selectedDistrict);
