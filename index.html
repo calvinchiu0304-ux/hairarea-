@@ -38,6 +38,30 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
+
+  <!-- 🛡️ 安全防護腳本：防右鍵、防開發者工具、防除錯 -->
+  <script>
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    document.addEventListener('keydown', function(e) {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    (function() {
+      function blockDevTools() {
+        const start = performance.now();
+        debugger;
+        const end = performance.now();
+        if (end - start > 100) { console.clear(); }
+      }
+      setInterval(blockDevTools, 500);
+    })();
+  </script>
 </head>
 <body class="bg-zinc-950 text-zinc-100 font-sans antialiased overflow-hidden">
 
@@ -45,19 +69,23 @@
   <header class="fixed top-0 left-0 right-0 z-20 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 p-2.5 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-1.5 shrink-0">
-          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-bold text-zinc-950 text-sm shadow-md">✂️</div>
+        
+        <!-- 🎯 AREA 風格 Logo (連續點擊 5 次觸發後台視窗) -->
+        <div onclick="handleLogoClick()" class="flex items-center gap-2 shrink-0 cursor-pointer select-none">
+          <div class="h-7 px-2.5 rounded-lg bg-zinc-100 flex items-center justify-center font-black text-zinc-950 text-xs tracking-widest border border-zinc-300 shadow-md hover:scale-105 transition">
+            <span style="font-family: system-ui, -apple-system, sans-serif; font-weight: 900; letter-spacing: 0.15em;">ARAE</span>
+          </div>
           <h1 class="font-bold text-xs tracking-wide flex items-center gap-1">
             香港髮型地圖 <span class="text-[10px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded border border-teal-500/30 font-normal">生態版</span>
           </h1>
         </div>
         
+        <!-- 右側功能按鈕 -->
         <div class="flex items-center gap-1 shrink-0">
           <button onclick="showModelModal()" class="text-[11px] bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-camera"></i> Model</button>
           <button onclick="showWishModal()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-wand-magic-sparkles"></i> 許願池</button>
           <button onclick="showApplyModal()" class="text-[11px] bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-user-plus"></i> 自薦</button>
           <button id="themeToggleBtn" onclick="toggleMapTheme()" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-teal-400 border border-zinc-700 p-1.5 rounded-lg transition"><i class="fa-solid fa-sun" id="themeIcon"></i></button>
-          <a href="admin.html" class="text-xs text-zinc-400 hover:text-teal-400 transition p-1"><i class="fa-solid fa-lock"></i></a>
         </div>
       </div>
 
@@ -143,11 +171,28 @@
     </button>
   </div>
 
-  <!-- 🚇 交通指南與路線 Modal -->
+  <!-- 🔒 隱藏式管理員登入 Modal -->
+  <div id="hiddenAdminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-teal-500/50 rounded-2xl max-w-sm w-full p-6 relative shadow-2xl text-xs">
+      <button onclick="closeHiddenAdminModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-teal-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-lock"></i> 管理員登入</h3>
+      <p class="text-zinc-400 mb-4">請輸入專屬授權密碼以進入後台控制面板</p>
+      
+      <form onsubmit="verifyAdminAccess(event)" class="space-y-3">
+        <div>
+          <input type="password" id="adminAuthPass" placeholder="請輸入管理員密碼" required class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-100 focus:outline-none focus:border-teal-500 text-xs">
+        </div>
+        <button type="submit" class="w-full bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl transition shadow-md text-xs">登入後台</button>
+        <button type="button" onclick="closeHiddenAdminModal()" class="w-full text-zinc-500 hover:text-zinc-300 py-1 transition text-[11px]">返回前台地圖</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 🚇 交通指南、商場地標與路線 Modal -->
   <div id="transportModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-zinc-900 border border-teal-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto text-xs">
       <button onclick="closeTransportModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-base font-bold text-teal-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-train-subway"></i> 交通指南與路線規劃</h3>
+      <h3 class="text-base font-bold text-teal-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-train-subway"></i> 交通指南與商場地標</h3>
       <p id="transportStylistInfo" class="text-zinc-400 mb-3 pb-2 border-b border-zinc-800"></p>
 
       <div class="space-y-3 text-zinc-300 leading-relaxed">
@@ -155,6 +200,12 @@
         <div id="distanceBox" class="bg-teal-950/40 border border-teal-500/30 p-2.5 rounded-xl text-teal-300 font-medium hidden flex items-center justify-between">
           <span><i class="fa-solid fa-person-walking text-teal-400"></i> 估算距離：<strong id="distanceText">--</strong></span>
           <span class="text-[10px] bg-teal-500/20 px-2 py-0.5 rounded border border-teal-500/30">直線距離</span>
+        </div>
+
+        <!-- 🏢 附近商場及出名地標 (新增區塊) -->
+        <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+          <h4 class="font-bold text-amber-400 mb-1 flex items-center gap-1.5"><i class="fa-solid fa-building-columns"></i> 附近商場及出名地標</h4>
+          <p id="transportLandmarkText">載入中...</p>
         </div>
 
         <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
@@ -167,11 +218,17 @@
         </div>
       </div>
 
-      <div class="mt-5 pt-3 border-t border-zinc-800 flex gap-2">
-        <a id="googleMapsBtn" href="" target="_blank" class="flex-1 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-center transition flex items-center justify-center gap-1.5 shadow-md">
-          <i class="fa-solid fa-map-location-dot"></i> 一鍵開啟 Google 導航
-        </a>
-        <button onclick="closeTransportModal()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-4 py-2.5 rounded-xl transition font-bold">關閉</button>
+      <!-- 底部雙功能按鈕：Google 導航 + Call 車到店 -->
+      <div class="mt-5 pt-3 border-t border-zinc-800 space-y-2">
+        <div class="flex gap-2">
+          <a id="googleMapsBtn" href="" target="_blank" class="flex-1 bg-teal-600 hover:bg-teal-500 text-zinc-950 font-bold py-2.5 rounded-xl text-center transition flex items-center justify-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-map-location-dot"></i> 一鍵開啟 Google 導航
+          </a>
+          <a id="rideTaxiBtn" href="" target="_blank" class="flex-1 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-center transition flex items-center justify-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-taxi"></i> 🚕 叫車直達
+          </a>
+        </div>
+        <button onclick="closeTransportModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 py-2 rounded-xl transition font-bold">關閉視窗</button>
       </div>
     </div>
   </div>
@@ -303,7 +360,41 @@
     let isListView = false;
     let miniMap = null, miniMarker = null;
     let targetEditingId = null;
-    let userLatLng = null; // 用戶 GPS 位置
+    let userLatLng = null;
+
+    // 🔒 隱藏後台計數邏輯 (3秒內點擊 5 次 Logo)
+    let logoClickCount = 0;
+    let logoClickTimer = null;
+
+    function handleLogoClick() {
+      logoClickCount++;
+      if (logoClickCount === 1) {
+        logoClickTimer = setTimeout(() => {
+          logoClickCount = 0;
+        }, 3000);
+      }
+      if (logoClickCount >= 5) {
+        clearTimeout(logoClickTimer);
+        logoClickCount = 0;
+        document.getElementById('adminAuthPass').value = '';
+        document.getElementById('hiddenAdminModal').classList.remove('hidden');
+      }
+    }
+
+    function closeHiddenAdminModal() {
+      document.getElementById('hiddenAdminModal').classList.add('hidden');
+    }
+
+    function verifyAdminAccess(e) {
+      e.preventDefault();
+      const inputPass = document.getElementById('adminAuthPass').value.trim();
+      if (inputPass === 'calvin0304') {
+        window.location.href = 'admin.html';
+      } else {
+        alert('❌ 密碼錯誤，無法存取管理員頁面！');
+        document.getElementById('adminAuthPass').value = '';
+      }
+    }
 
     window.onload = async function() {
       map = L.map('map', { zoomControl: false }).setView([22.3193, 114.1694], 13);
@@ -311,7 +402,6 @@
       applyMapFilter(true);
       markersGroup = L.layerGroup().addTo(map);
 
-      // 嘗試獲取用戶目前位置以計算距離
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
           userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -322,7 +412,6 @@
       await fetchHomeServiceBoard();
     };
 
-    // 📊 背景點擊計數
     async function trackClick(stylistId, type) {
       if (!stylistId) return;
       try {
@@ -339,11 +428,10 @@
       } catch (e) { console.error('Track error:', e); }
     }
 
-    // 🚇 開啟交通指南 Modal
+    // 🚇 開啟交通指南 Modal (已整合「附近商場及出名地標」)
     function openTransportModal(name, shop, district, lat, lng) {
       document.getElementById('transportStylistInfo').innerHTML = `<strong>${name}</strong> · <span class="text-teal-400">${shop} (${district})</span>`;
       
-      // 計算與顯示用戶距離
       const distanceBox = document.getElementById('distanceBox');
       if (userLatLng && lat && lng) {
         const distKm = getHaversineDistance(userLatLng.lat, userLatLng.lng, parseFloat(lat), parseFloat(lng));
@@ -354,29 +442,38 @@
         distanceBox.classList.add('hidden');
       }
 
-      // 香港核心地區高頻路線指引
+      // 地區商場與地標指引對應
+      let landmarkInfo = "鄰近核心消閒熱點及購物商場。";
       let mtrInfo = "鄰近港鐵站出口步行約 3-5 分鐘前往。";
       let busInfo = "可乘搭途經該區之主要巴士或專線小巴。";
 
       if (district === 'mongkok' || district === '旺角') {
+        landmarkInfo = "鄰近朗豪坊、T.O.P This is Our Place、銀行中心廣場及西洋菜南街商圈。";
         mtrInfo = "港鐵旺角站 E2 出口（銀行中心方向）或 D2 出口步行約 3 分鐘。";
         busInfo = "彌敦道多條九巴路線（1, 1A, 6, 30X, 112, 234X）於旺角站下車。";
       } else if (district === 'cwb' || district === '銅鑼灣') {
+        landmarkInfo = "鄰近時代廣場、希慎廣場 Hysan Place、SOGO 崇光百貨及世貿中心。";
         mtrInfo = "港鐵銅鑼灣站 F1 出口（希慎廣場）或 E 出口步行約 2-4 分鐘。";
         busInfo = "途經軒尼詩道、怡和街之巴士線或電車於銅鑼灣廣場下車。";
       } else if (district === 'tst' || district === '尖沙咀') {
+        landmarkInfo = "鄰近 K11 Art Mall、iSQUARE 國際廣場、海港城及美麗華廣場。";
         mtrInfo = "港鐵尖沙咀站 A1 出口（清真寺）或 B2 出口步行約 3-5 分鐘。";
         busInfo = "彌敦道/梳士巴利道線路（5, 8, 8A, 28, 87D, 281A）直達。";
       } else if (district === 'shatin' || district === '沙田') {
+        landmarkInfo = "鄰近新城市廣場 New Town Plaza、好運中心及沙田中心。";
         mtrInfo = "港鐵沙田站 A 出口（連城廣場/新城市廣場連廊）步行前往。";
         busInfo = "沙田市中心總站多條九巴及過海隧道巴士線路直達。";
       }
 
+      document.getElementById('transportLandmarkText').innerText = landmarkInfo;
       document.getElementById('transportMtrText').innerText = mtrInfo;
       document.getElementById('transportBusText').innerText = busInfo;
 
-      // Google Maps 導航
       document.getElementById('googleMapsBtn').href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+      const encodedAddress = encodeURIComponent(`${shop} (${district})`);
+      document.getElementById('rideTaxiBtn').href = `https://m.uber.com/ul/?action=setPickup&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${encodedAddress}`;
+
       document.getElementById('transportModal').classList.remove('hidden');
     }
 
@@ -384,7 +481,6 @@
       document.getElementById('transportModal').classList.add('hidden');
     }
 
-    // 計算經緯度直線距離 (Haversine)
     function getHaversineDistance(lat1, lon1, lat2, lon2) {
       const R = 6371;
       const dLat = (lat2 - lat1) * Math.PI / 180;
