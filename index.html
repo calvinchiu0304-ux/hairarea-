@@ -189,22 +189,28 @@
   <!-- View 4: 🛍️ 美髮市集 -->
   <main id="marketMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
     <div class="max-w-2xl mx-auto space-y-4">
-      <div class="flex justify-between items-center bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
-        <h2 class="font-bold text-base text-purple-400"><i class="fa-solid fa-store"></i> 美髮市集與二手工具交易</h2>
-        <button onclick="showAddProductModal()" class="bg-purple-500 text-zinc-950 text-xs font-bold px-3 py-2 rounded-xl shadow-md"><i class="fa-solid fa-plus"></i> 刊登商品</button>
+      <div class="flex justify-between items-center bg-zinc-900 border border-purple-500/50 p-4 rounded-2xl">
+        <div>
+          <h2 class="font-bold text-base text-purple-400"><i class="fa-solid fa-store"></i> 美髮市集與二手工具交易</h2>
+          <p class="text-xs text-zinc-400 mt-0.5">專業二手剪刀、電氣剪、美髮椅等買賣交流專區。</p>
+        </div>
+        <button onclick="showAddProductModal()" class="bg-purple-500 hover:bg-purple-400 text-zinc-950 text-xs font-bold px-3.5 py-2 rounded-xl shadow-md transition shrink-0 active:scale-95"><i class="fa-solid fa-plus"></i> 刊登商品</button>
       </div>
-      <div id="marketProductsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      <div id="marketProductsContainer" class="space-y-3"></div>
     </div>
   </main>
 
   <!-- View 5: 🎓 技術課程 -->
   <main id="courseMainView" class="hidden fixed inset-0 top-[170px] bg-zinc-950 z-10 overflow-y-auto p-4 pb-28">
     <div class="max-w-2xl mx-auto space-y-4">
-      <div class="flex justify-between items-center bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
-        <h2 class="font-bold text-base text-cyan-400"><i class="fa-solid fa-graduation-cap"></i> 髮型教學與開班專區</h2>
-        <button onclick="showAddCourseModal()" class="bg-cyan-500 text-zinc-950 text-xs font-bold px-3 py-2 rounded-xl shadow-md"><i class="fa-solid fa-plus"></i> 導師開班</button>
+      <div class="flex justify-between items-center bg-zinc-900 border border-cyan-500/50 p-4 rounded-2xl">
+        <div>
+          <h2 class="font-bold text-base text-cyan-400"><i class="fa-solid fa-graduation-cap"></i> 髮型教學與開班專區</h2>
+          <p class="text-xs text-zinc-400 mt-0.5">全港專業導師進修課程、剪髮班、電染技術培訓報名。</p>
+        </div>
+        <button onclick="showAddCourseModal()" class="bg-cyan-500 hover:bg-cyan-400 text-zinc-950 text-xs font-bold px-3.5 py-2 rounded-xl shadow-md transition shrink-0 active:scale-95"><i class="fa-solid fa-plus"></i> 導師開班</button>
       </div>
-      <div id="coursesContainer" class="space-y-4"></div>
+      <div id="coursesContainer" class="space-y-3"></div>
     </div>
   </main>
 
@@ -322,7 +328,6 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-zinc-400 mb-1">所屬地區 *</label>
-            <!-- 🌟 升級為美觀 18 區點擊按鈕 -->
             <button type="button" onclick="openDistrictModal('transferForm')" class="w-full bg-zinc-800 border border-emerald-500/50 rounded-lg px-3 py-2 text-left text-zinc-100 font-bold flex items-center justify-between">
               <span id="transferFormDistrictText">旺角</span>
               <i class="fa-solid fa-chevron-down text-[10px] text-emerald-400"></i>
@@ -351,6 +356,90 @@
         </div>
 
         <button type="submit" class="w-full mt-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold py-2.5 rounded-xl transition shadow-md">刊登頂手/合作 (30天自動清理)</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 🛍️ 刊登美髮市集商品 Modal -->
+  <div id="addProductModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-zinc-900 border border-purple-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto text-xs">
+      <button onclick="closeAddProductModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-purple-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-store"></i> 刊登美髮市集商品</h3>
+      
+      <form id="productForm" onsubmit="submitProductPost(event)" class="space-y-3">
+        <div>
+          <label class="block text-zinc-400 mb-1">商品名稱 *</label>
+          <input type="text" id="productTitle" required placeholder="例如：9成新專業電剪 / 日本進口理髮椅" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-zinc-400 mb-1">售價 (HK$) *</label>
+            <input type="text" id="productPrice" required placeholder="800" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          </div>
+          <div>
+            <label class="block text-zinc-400 mb-1">交易地區 *</label>
+            <button type="button" onclick="openDistrictModal('productForm')" class="w-full bg-zinc-800 border border-purple-500/50 rounded-lg px-3 py-2 text-left text-zinc-100 font-bold flex items-center justify-between">
+              <span id="productFormDistrictText">旺角</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-purple-400"></i>
+            </button>
+            <input type="hidden" id="productDistrict" value="旺角">
+          </div>
+        </div>
+        <div>
+          <label class="block text-zinc-400 mb-1">詳細描述 *</label>
+          <textarea id="productDesc" rows="3" required placeholder="請描述商品新舊程度、使用狀況..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-zinc-400 mb-1">聯絡人 *</label><input type="text" id="productContact" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">WhatsApp *</label><input type="text" id="productWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        </div>
+        <div>
+          <label class="block text-purple-400 mb-1 font-bold">📸 上傳商品相片 *</label>
+          <input type="file" id="productPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-purple-500/50 rounded-lg p-2 text-zinc-300 text-xs">
+        </div>
+        <button type="submit" class="w-full mt-2 bg-purple-500 hover:bg-purple-400 text-zinc-950 font-bold py-2.5 rounded-xl transition shadow-md">確認刊登商品</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 🎓 導師開班 Modal -->
+  <div id="addCourseModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-zinc-900 border border-cyan-500/50 rounded-2xl max-w-md w-full p-5 relative shadow-2xl my-auto text-xs">
+      <button onclick="closeAddCourseModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold text-cyan-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-graduation-cap"></i> 發布髮型技術課程</h3>
+      
+      <form id="courseForm" onsubmit="submitCoursePost(event)" class="space-y-3">
+        <div>
+          <label class="block text-zinc-400 mb-1">課程名稱 *</label>
+          <input type="text" id="courseTitle" required placeholder="例如：日系空氣感剪髮速成班 / 專業Barber漸變研討" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-zinc-400 mb-1">學費 (HK$) *</label>
+            <input type="text" id="coursePrice" required placeholder="2800" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100">
+          </div>
+          <div>
+            <label class="block text-zinc-400 mb-1">上課地區 *</label>
+            <button type="button" onclick="openDistrictModal('courseForm')" class="w-full bg-zinc-800 border border-cyan-500/50 rounded-lg px-3 py-2 text-left text-zinc-100 font-bold flex items-center justify-between">
+              <span id="courseFormDistrictText">旺角</span>
+              <i class="fa-solid fa-chevron-down text-[10px] text-cyan-400"></i>
+            </button>
+            <input type="hidden" id="courseDistrict" value="旺角">
+          </div>
+        </div>
+        <div>
+          <label class="block text-zinc-400 mb-1">課程大綱與時間 *</label>
+          <textarea id="courseDesc" rows="3" required placeholder="請列明課程時數、日期、包實習或工具等詳情..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-zinc-400 mb-1">導師姓名 *</label><input type="text" id="courseContact" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+          <div><label class="block text-zinc-400 mb-1">WhatsApp *</label><input type="text" id="courseWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
+        </div>
+        <div>
+          <label class="block text-cyan-400 mb-1 font-bold">📸 上傳課程宣傳相片 *</label>
+          <input type="file" id="coursePhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-cyan-500/50 rounded-lg p-2 text-zinc-300 text-xs">
+        </div>
+        <button type="submit" class="w-full mt-2 bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold py-2.5 rounded-xl transition shadow-md">確認發布課程</button>
       </form>
     </div>
   </div>
@@ -412,7 +501,6 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-zinc-400 mb-1">地區 *</label>
-            <!-- 🌟 升級為美觀 18 區點擊按鈕 -->
             <button type="button" onclick="openDistrictModal('wishForm')" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-left text-zinc-100 font-bold flex items-center justify-between">
               <span id="wishFormDistrictText">旺角</span>
               <i class="fa-solid fa-chevron-down text-[10px] text-amber-400"></i>
@@ -439,7 +527,6 @@
           <div><label class="block text-zinc-400 mb-1">WhatsApp *</label><input type="text" id="modelWa" required class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-100"></div>
           <div>
             <label class="block text-zinc-400 mb-1">地區 *</label>
-            <!-- 🌟 升級為美觀 18 區點擊按鈕 -->
             <button type="button" onclick="openDistrictModal('modelForm')" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-left text-zinc-100 font-bold flex items-center justify-between">
               <span id="modelFormDistrictText">旺角</span>
               <i class="fa-solid fa-chevron-down text-[10px] text-pink-400"></i>
@@ -468,8 +555,6 @@
     let isAdminMode = false;
     let currentSimulatedRole = 'admin';
     let selectedDistrictValue = 'ALL';
-    
-    // 追蹤當前開啟地區彈窗的來源
     let districtModalSource = 'map';
 
     let logoClickCount = 0, logoClickTimer = null;
@@ -514,6 +599,8 @@
       checkAutoLogin();
       await fetchSalonsAndStylists();
       await fetchTransferPosts();
+      await fetchMarketProducts();
+      await fetchCourses();
     };
 
     function checkAutoLogin() {
@@ -605,9 +692,8 @@
         allBtn.style.display = 'flex';
       } else {
         titleEl.innerHTML = `<i class="fa-solid fa-location-dot"></i> 選擇表單所屬地區`;
-        allBtn.style.display = 'none'; // 填寫表單時隱藏「全港所有地區」
+        allBtn.style.display = 'none';
       }
-      
       document.getElementById('districtModal').classList.remove('hidden');
     }
 
@@ -632,6 +718,14 @@
       } else if (districtModalSource === 'modelForm') {
         document.getElementById('modelDistrict').value = val;
         document.getElementById('modelFormDistrictText').innerText = val;
+        closeDistrictModal();
+      } else if (districtModalSource === 'productForm') {
+        document.getElementById('productDistrict').value = val;
+        document.getElementById('productFormDistrictText').innerText = val;
+        closeDistrictModal();
+      } else if (districtModalSource === 'courseForm') {
+        document.getElementById('courseDistrict').value = val;
+        document.getElementById('courseFormDistrictText').innerText = val;
         closeDistrictModal();
       }
     }
@@ -807,6 +901,142 @@
       }).join('');
     }
 
+    // 🛍️ 美髮市集模組
+    function showAddProductModal() { document.getElementById('addProductModal').classList.remove('hidden'); }
+    function closeAddProductModal() { document.getElementById('addProductModal').classList.add('hidden'); }
+
+    async function submitProductPost(e) {
+      e.preventDefault();
+      const file = document.getElementById('productPhotoFile').files[0];
+      const reader = new FileReader();
+      reader.onload = async function(event) {
+        const payload = {
+          title: document.getElementById('productTitle').value.trim(),
+          price: document.getElementById('productPrice').value.trim(),
+          district: document.getElementById('productDistrict').value,
+          description: document.getElementById('productDesc').value.trim(),
+          contact_name: document.getElementById('productContact').value.trim(),
+          whatsapp: document.getElementById('productWa').value.trim(),
+          photo_base64: event.target.result
+        };
+        const { error } = await supabaseClient.from('market_products').insert([payload]);
+        if (error) alert('❌ 刊登失敗：' + error.message);
+        else {
+          alert('🎉 商品刊登成功！');
+          document.getElementById('productForm').reset();
+          document.getElementById('productFormDistrictText').innerText = '旺角';
+          document.getElementById('productDistrict').value = '旺角';
+          closeAddProductModal();
+          fetchMarketProducts();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function fetchMarketProducts() {
+      const container = document.getElementById('marketProductsContainer');
+      if (!container) return;
+      try {
+        const { data } = await supabaseClient.from('market_products').select('*').order('created_at', { ascending: false });
+        rawProductsData = data || [];
+        if (rawProductsData.length === 0) {
+          container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前尚無二手商品刊登</p></div>`;
+          return;
+        }
+        container.innerHTML = rawProductsData.map(p => {
+          const cleanPhone = String(p.whatsapp || '').replace(/\D/g, '');
+          const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我想購買【香港髮型地圖】市集中的商品 (${p.title})`)}`;
+          return `
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-md flex gap-3 items-center">
+              ${p.photo_base64 ? `<img src="${p.photo_base64}" class="w-28 h-28 object-cover rounded-xl border border-zinc-800 shrink-0" />` : ''}
+              <div class="flex-1 space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-bold">二手買賣</span>
+                  <span class="text-xs text-amber-400 font-extrabold">HK$ ${p.price}</span>
+                </div>
+                <h3 class="font-bold text-sm text-zinc-100">${p.title}</h3>
+                <p class="text-xs text-zinc-400">📍 ${p.district} | 聯絡：${p.contact_name}</p>
+                <p class="text-xs text-zinc-300 line-clamp-2">${p.description}</p>
+                <div class="pt-1 flex justify-end">
+                  <a href="${waLink}" target="_blank" class="bg-purple-600 hover:bg-purple-500 text-zinc-950 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i class="fa-brands fa-whatsapp"></i> 聯絡賣家</a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前尚無二手商品刊登</p></div>`;
+      }
+    }
+
+    // 🎓 技術課程模組
+    function showAddCourseModal() { document.getElementById('addCourseModal').classList.remove('hidden'); }
+    function closeAddCourseModal() { document.getElementById('addCourseModal').classList.add('hidden'); }
+
+    async function submitCoursePost(e) {
+      e.preventDefault();
+      const file = document.getElementById('coursePhotoFile').files[0];
+      const reader = new FileReader();
+      reader.onload = async function(event) {
+        const payload = {
+          title: document.getElementById('courseTitle').value.trim(),
+          price: document.getElementById('coursePrice').value.trim(),
+          district: document.getElementById('courseDistrict').value,
+          description: document.getElementById('courseDesc').value.trim(),
+          contact_name: document.getElementById('courseContact').value.trim(),
+          whatsapp: document.getElementById('courseWa').value.trim(),
+          photo_base64: event.target.result
+        };
+        const { error } = await supabaseClient.from('courses').insert([payload]);
+        if (error) alert('❌ 發布失敗：' + error.message);
+        else {
+          alert('🎉 課程發布成功！');
+          document.getElementById('courseForm').reset();
+          document.getElementById('courseFormDistrictText').innerText = '旺角';
+          document.getElementById('courseDistrict').value = '旺角';
+          closeAddCourseModal();
+          fetchCourses();
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function fetchCourses() {
+      const container = document.getElementById('coursesContainer');
+      if (!container) return;
+      try {
+        const { data } = await supabaseClient.from('courses').select('*').order('created_at', { ascending: false });
+        rawCoursesData = data || [];
+        if (rawCoursesData.length === 0) {
+          container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前尚無技術課程開班</p></div>`;
+          return;
+        }
+        container.innerHTML = rawCoursesData.map(c => {
+          const cleanPhone = String(c.whatsapp || '').replace(/\D/g, '');
+          const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我想報名【香港髮型地圖】的技術課程 (${c.title})`)}`;
+          return `
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-md flex gap-3 items-center">
+              ${c.photo_base64 ? `<img src="${c.photo_base64}" class="w-28 h-28 object-cover rounded-xl border border-zinc-800 shrink-0" />` : ''}
+              <div class="flex-1 space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold">專業進修</span>
+                  <span class="text-xs text-amber-400 font-extrabold">HK$ ${c.price}</span>
+                </div>
+                <h3 class="font-bold text-sm text-zinc-100">${c.title}</h3>
+                <p class="text-xs text-zinc-400">📍 ${c.district} | 導師：${c.contact_name}</p>
+                <p class="text-xs text-zinc-300 line-clamp-2">${c.description}</p>
+                <div class="pt-1 flex justify-end">
+                  <a href="${waLink}" target="_blank" class="bg-cyan-600 hover:bg-cyan-500 text-zinc-950 text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1"><i class="fa-brands fa-whatsapp"></i> WhatsApp 報名</a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前尚無技術課程開班</p></div>`;
+      }
+    }
+
     async function removeStylistFromSalon(stylistId, salonId) {
       if (!confirm('確定要將此髮型師從本店移除嗎？')) return;
       const { error } = await supabaseClient.from('stylists').update({ salon_id: null, status: 'unlinked' }).eq('id', stylistId);
@@ -826,7 +1056,7 @@
     function toggleView() { isListView = !isListView; document.getElementById('listView').classList.toggle('hidden', !isListView); }
     async function submitWishRequest(e) { e.preventDefault(); alert('🎉 需求已提交！'); closeWishModal(); }
     async function submitModelApplication(e) { e.preventDefault(); alert('🎉 模特兒登記成功！'); closeModelModal(); }
-    async function fetchHomeServiceBoard() {} async function fetchMarketProducts() {} async function fetchCourses() {} async function fetchModelMatches() {}
+    async function fetchHomeServiceBoard() {} async function fetchModelMatches() {}
   </script>
 </body>
 </html>
