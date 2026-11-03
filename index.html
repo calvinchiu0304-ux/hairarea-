@@ -110,35 +110,14 @@
         <button id="tabModelMatchBtn" onclick="switchMainTab('modelMatch')" class="text-xs px-2.5 py-1 rounded-lg font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200 transition items-center gap-1 whitespace-nowrap hidden"><i class="fa-solid fa-user-check"></i> 📸 模特兒配對專區</button>
       </div>
 
-      <!-- 地圖專用全港 18 區統一地區篩選列 (已修復返回/全部地區切換) -->
+      <!-- 地圖專用地區按鈕 (零延遲極速彈窗) -->
       <div id="mapFilterRow" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-        <div class="relative flex items-center">
-          <select id="districtFilter" onchange="applyFilters()" class="appearance-none bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg pl-3 pr-7 py-1.5 focus:outline-none focus:border-teal-500 font-medium">
-            <option value="ALL">📍 全港所有地區</option>
-            <optgroup label="九龍區">
-              <option value="旺角">旺角</option>
-              <option value="尖沙咀">尖沙咀</option>
-              <option value="觀塘">觀塘</option>
-              <option value="深水埗">深水埗</option>
-              <option value="九龍城">九龍城 / 黃大仙</option>
-            </optgroup>
-            <optgroup label="港島區">
-              <option value="銅鑼灣">銅鑼灣</option>
-              <option value="中環">中環 / 金鐘</option>
-              <option value="灣仔">灣仔</option>
-              <option value="北角">北角 / 鰂魚涌</option>
-            </optgroup>
-            <optgroup label="新界及離島">
-              <option value="沙田">沙田 / 馬鞍山</option>
-              <option value="荃灣">荃灣 / 葵芳</option>
-              <option value="元朗">元朗 / 屯門</option>
-              <option value="將軍澳">將軍澳</option>
-            </optgroup>
-          </select>
-          <div class="absolute right-2 pointer-events-none text-zinc-400 text-[10px]"><i class="fa-solid fa-chevron-down"></i></div>
-        </div>
-        <button onclick="resetDistrictFilter()" class="text-xs shrink-0 bg-zinc-800 border border-zinc-700 hover:border-teal-500 text-teal-400 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 font-bold"><i class="fa-solid fa-arrow-rotate-left"></i> 返回全部</button>
-        
+        <button onclick="openDistrictModal()" class="bg-zinc-800 border border-teal-500/50 hover:bg-zinc-700 text-xs text-teal-300 rounded-lg px-3 py-1.5 flex items-center gap-1.5 font-bold transition shadow-md active:scale-95 shrink-0">
+          <i class="fa-solid fa-location-dot text-teal-400"></i>
+          <span id="currentDistrictLabel">📍 全港所有地區</span>
+          <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+        </button>
+
         <button onclick="toggleTagFilter('日系電髮')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#日系電髮</button>
         <button onclick="toggleTagFilter('Barber漸變')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#Barber漸變</button>
         <button onclick="toggleTagFilter('單剪速剪')" class="tag-btn text-xs shrink-0 bg-zinc-800 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full hover:border-teal-500 transition">#單剪速剪</button>
@@ -250,6 +229,51 @@
       <i class="fa-solid fa-list-ul" id="toggleIcon"></i>
       <span id="toggleText">切換為列表視角</span>
     </button>
+  </div>
+
+  <!-- 📍 地區快速選擇彈窗 Modal (零延遲秒切換) -->
+  <div id="districtModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-teal-500/50 rounded-2xl max-w-sm w-full p-5 relative shadow-2xl text-xs space-y-4">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <h3 class="font-bold text-teal-400 text-sm flex items-center gap-2"><i class="fa-solid fa-location-dot"></i> 選擇瀏覽地區</h3>
+        <button onclick="closeDistrictModal()" class="text-zinc-400 hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3 max-h-[60vh] overflow-y-auto no-scrollbar">
+        <button onclick="selectDistrict('ALL', '📍 全港所有地區')" class="w-full text-left bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 p-3 rounded-xl font-bold transition flex items-center justify-between">
+          <span>📍 全港所有地區 (返回全部)</span>
+          <i class="fa-solid fa-arrow-rotate-left"></i>
+        </button>
+
+        <div>
+          <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 九龍區</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button onclick="selectDistrict('旺角', '旺角')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">旺角</button>
+            <button onclick="selectDistrict('尖沙咀', '尖沙咀')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">尖沙咀</button>
+            <button onclick="selectDistrict('觀塘', '觀塘')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">觀塘</button>
+            <button onclick="selectDistrict('深水埗', '深水埗')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">深水埗</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 港島區</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button onclick="selectDistrict('銅鑼灣', '銅鑼灣')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">銅鑼灣</button>
+            <button onclick="selectDistrict('中環', '中環 / 金鐘')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">中環 / 金鐘</button>
+            <button onclick="selectDistrict('灣仔', '灣仔')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">灣仔</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-[11px] text-zinc-400 font-bold mb-1.5">◆ 新界及離島</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button onclick="selectDistrict('沙田', '沙田 / 馬鞍山')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">沙田 / 馬鞍山</button>
+            <button onclick="selectDistrict('荃灣', '荃灣 / 葵芳')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">荃灣 / 葵芳</button>
+            <button onclick="selectDistrict('將軍澳', '將軍澳')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-lg text-left text-zinc-200 font-medium">將軍澳</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 🏪 發布頂手 / 租位 / 商業合作 Modal -->
@@ -404,6 +428,7 @@
     let currentUser = null; 
     let isAdminMode = false;
     let currentSimulatedRole = 'admin';
+    let selectedDistrictValue = 'ALL';
 
     let logoClickCount = 0, logoClickTimer = null;
     function handleLogoClick() {
@@ -526,13 +551,19 @@
       if (tab === 'modelMatch') fetchModelMatches();
     }
 
-    // 🔄 快速返回全部地區功能
-    function resetDistrictFilter() {
-      const select = document.getElementById('districtFilter');
-      if (select) {
-        select.value = 'ALL';
-        applyFilters();
-      }
+    // ⚡ 零延遲彈窗選單控制邏輯
+    function openDistrictModal() { document.getElementById('districtModal').classList.remove('hidden'); }
+    function closeDistrictModal() { document.getElementById('districtModal').classList.add('hidden'); }
+
+    function selectDistrict(val, label) {
+      selectedDistrictValue = val;
+      document.getElementById('currentDistrictLabel').innerText = `📍 ${label}`;
+      closeDistrictModal();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      renderSalonMarkers(rawSalonsData);
     }
 
     // 📍 讀取店鋪與掛靠髮型師資料
@@ -547,7 +578,8 @@
 
     function renderSalonMarkers(salonsList) {
       markersGroup.clearLayers();
-      salonsList.forEach(salon => {
+      const filtered = salonsList.filter(s => selectedDistrictValue === 'ALL' || s.district === selectedDistrictValue);
+      filtered.forEach(salon => {
         const count = salon.stylists ? salon.stylists.length : 0;
         const jitterLat = salon.lat + (Math.random() - 0.5) * 0.0002;
         const jitterLng = salon.lng + (Math.random() - 0.5) * 0.0002;
