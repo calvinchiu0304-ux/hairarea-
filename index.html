@@ -170,7 +170,7 @@
 
       <!-- 地區與模式篩選 -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-        <select id="transferDistrictFilter" onchange="filterTransferPosts()" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none">
+        <select id="transferDistrictFilter" onchange="onTransferDistrictChange(this.value)" class="bg-zinc-800 border border-zinc-700 text-xs text-zinc-200 rounded-lg px-2.5 py-1.5 focus:outline-none">
           <option value="ALL">📍 所有地區</option>
           <option value="旺角">旺角</option><option value="尖沙咀">尖沙咀</option><option value="銅鑼灣">銅鑼灣</option><option value="觀塘">觀塘</option><option value="沙田">沙田</option><option value="荃灣">荃灣</option>
         </select>
@@ -471,6 +471,7 @@
 
       checkAutoLogin();
       await fetchSalonsAndStylists();
+      await fetchTransferPosts();
     };
 
     function checkAutoLogin() {
@@ -551,19 +552,36 @@
       if (tab === 'modelMatch') fetchModelMatches();
     }
 
-    // ⚡ 零延遲彈窗選單控制邏輯
+    // ⚡ 零延遲彈窗選單控制邏輯 (已修復與頂手大廳的地區同步)
     function openDistrictModal() { document.getElementById('districtModal').classList.remove('hidden'); }
     function closeDistrictModal() { document.getElementById('districtModal').classList.add('hidden'); }
 
     function selectDistrict(val, label) {
       selectedDistrictValue = val;
       document.getElementById('currentDistrictLabel').innerText = `📍 ${label}`;
+      
+      // 同步更新頂手大廳內部的下拉選單
+      const transferSelect = document.getElementById('transferDistrictFilter');
+      if (transferSelect) {
+        transferSelect.value = val;
+      }
+
       closeDistrictModal();
       applyFilters();
     }
 
+    function onTransferDistrictChange(val) {
+      selectedDistrictValue = val;
+      const labelMap = { 'ALL': '📍 全港所有地區', '旺角': '旺角', '尖沙咀': '尖沙咀', '銅鑼灣': '銅鑼灣', '觀塘': '觀塘', '沙田': '沙田', '荃灣': '荃灣' };
+      document.getElementById('currentDistrictLabel').innerText = `📍 ${labelMap[val] || val}`;
+      applyFilters();
+    }
+
     function applyFilters() {
+      // 1. 刷新地圖上的店鋪標記
       renderSalonMarkers(rawSalonsData);
+      // 2. 刷新頂手大廳的列表資料
+      filterTransferPosts();
     }
 
     // 📍 讀取店鋪與掛靠髮型師資料
@@ -646,7 +664,7 @@
 
     function filterTransferPosts() {
       const container = document.getElementById('transferPostsContainer');
-      const selectedDistrict = document.getElementById('transferDistrictFilter').value;
+      if (!container) return;
       const now = new Date();
 
       const validPosts = rawTransferData.filter(p => {
@@ -655,7 +673,7 @@
         return daysDiff <= 30;
       });
 
-      const filtered = validPosts.filter(p => selectedDistrict === 'ALL' || p.district === selectedDistrict);
+      const filtered = validPosts.filter(p => selectedDistrictValue === 'ALL' || p.district === selectedDistrictValue);
 
       if (filtered.length === 0) {
         container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前此區域尚無刊登中項目</p></div>`;
@@ -688,8 +706,35 @@
     function filterTransferType(mode) {
       if (mode === 'ALL') { fetchTransferPosts(); return; }
       const container = document.getElementById('transferPostsContainer');
-      const filtered = rawTransferData.filter(p => p.mode === mode);
-      fetchTransferPosts();
+      if (!container) return;
+      const filtered = rawTransferData.filter(p => p.mode === mode && (selectedDistrictValue === 'ALL' || p.district === selectedDistrictValue));
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-2xl"><p class="text-sm">目前此模式尚無刊登中項目</p></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => {
+        const cleanPhone = String(p.whatsapp || '').replace(/\D/g, '');
+        const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(`你好！我在【香港髮型地圖】看到您的【${p.mode}】刊登 (${p.title})，想查詢詳情...`)}`;
+        return `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-md text-zinc-100 flex flex-col sm:flex-row gap-4 items-center">
+            ${p.photo_base64 ? `<img src="${p.photo_base64}" class="w-full sm:w-36 h-36 object-cover rounded-xl border border-zinc-800 shrink-0" />` : ''}
+            <div class="flex-1 space-y-1.5 w-full">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">${p.mode}</span>
+                <span class="text-xs text-amber-400 font-extrabold">HK$ ${p.price}</span>
+              </div>
+              <h3 class="font-bold text-sm text-zinc-100">${p.title}</h3>
+              <p class="text-xs text-zinc-400">📍 地區：${p.district} | 聯絡人：${p.contact_name}</p>
+              <p class="text-xs text-zinc-300 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800 leading-relaxed">${p.description}</p>
+              <div class="pt-2 flex justify-end">
+                <a href="${waLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-950 text-xs px-4 py-2 rounded-xl font-bold transition flex items-center gap-1 active:scale-95"><i class="fa-brands fa-whatsapp"></i> 聯繫負責人</a>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     async function removeStylistFromSalon(stylistId, salonId) {
