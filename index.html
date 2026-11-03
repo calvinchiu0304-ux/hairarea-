@@ -89,6 +89,9 @@
         <div class="flex items-center gap-1.5 shrink-0">
           <button onclick="showModelModal()" class="text-[11px] bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-camera"></i> 模特兒招募</button>
           
+          <!-- 🪄 許願池 (上門理髮申請入口 - 已補回) -->
+          <button onclick="showWishModal()" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-2 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-wand-magic-sparkles"></i> 許願池</button>
+
           <!-- 🔑 統一會員登入/頭像切換區 -->
           <div id="userAuthSection">
             <button onclick="showAuthModal()" class="text-[11px] bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1 shadow-md active:scale-95 whitespace-nowrap"><i class="fa-solid fa-user"></i> 登入 / 註冊</button>
@@ -405,7 +408,7 @@
           <input type="file" id="modelPhotoFile" accept="image/*" required class="w-full bg-zinc-800 border border-pink-500/50 rounded-lg p-2 text-zinc-300 text-xs">
         </div>
 
-        <button type="submit" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md">送出模特兒申請</button>
+        <button type="submit" class="w-full mt-2 bg-pink-500 hover:bg-pink-400 text-zinc-950 font-bold py-2.5 rounded-xl transition active:scale-95 shadow-md">送出模特兒申請</button>
       </form>
     </div>
   </div>
