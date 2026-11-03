@@ -480,8 +480,56 @@
         }, () => {});
       }
 
+      // 初始化表單 localStorage 自動暫存與恢復
+      initFormDrafts();
+
       await fetchStylists();
     };
+
+    // 🛡️ 實作表單防遺失 (LocalStorage Drafts) 功能
+    function initFormDrafts() {
+      const formsConfig = [
+        { formId: 'applyForm', key: 'draft_apply', fields: ['applyName', 'applyGender', 'applyDistrict', 'applyShop', 'applyPrice', 'applyIg', 'applyWa', 'applyPin', 'applyLat', 'applyLng'] },
+        { formId: 'modelForm', key: 'draft_model', fields: ['modelName', 'modelWa', 'modelDistrict', 'modelHairStatus'] },
+        { formId: 'wishForm', key: 'draft_wish', fields: ['wishName', 'wishDistrict', 'wishServiceType', 'wishWa', 'wishDate', 'wishNotes'] },
+        { formId: 'productForm', key: 'draft_product', fields: ['prodTitle', 'prodCategory', 'prodPrice', 'prodCondition', 'prodDelivery', 'prodSeller', 'prodWa'] },
+        { formId: 'courseForm', key: 'draft_course', fields: ['courseName', 'tutorName', 'targetAudience', 'coursePrice', 'courseLocation', 'dateInfo', 'courseWa', 'courseDesc'] }
+      ];
+
+      formsConfig.forEach(cfg => {
+        const form = document.getElementById(cfg.formId);
+        if (!form) return;
+
+        // 1. 頁面載入時恢復暫存資料
+        const saved = localStorage.getItem(cfg.key);
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            cfg.fields.forEach(fieldId => {
+              const el = document.getElementById(fieldId);
+              if (el && data[fieldId] !== undefined) {
+                el.value = data[fieldId];
+              }
+            });
+          } catch(e) { console.error('Draft load error', e); }
+        }
+
+        // 2. 監聽輸入並即時儲存
+        form.addEventListener('input', () => {
+          const data = {};
+          cfg.fields.forEach(fieldId => {
+            const el = document.getElementById(fieldId);
+            if (el) data[fieldId] = el.value;
+          });
+          localStorage.setItem(cfg.key, JSON.stringify(data));
+        });
+
+        // 3. 成功送出後清除暫存
+        form.addEventListener('submit', () => {
+          localStorage.removeItem(cfg.key);
+        });
+      });
+    }
 
     // 🔀 四大主視角切換控制
     function switchMainTab(tab) {
